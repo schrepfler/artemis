@@ -13,6 +13,7 @@ lazy val artemis =
         library.circeGeneric,
         library.circeGenericExtras,
         library.circeLiteral,
+        library.circeTesting % Test,
         library.scalaCheck % Test,
         library.scalaTest  % Test
       )
@@ -34,6 +35,7 @@ lazy val library =
     val circeParser = "io.circe" %% "circe-parser" % Version.circe
     val circeGeneric = "io.circe" %% "circe-generic" % Version.circe
     val circeLiteral = "io.circe" %% "circe-literal" % Version.circe
+    val circeTesting = "io.circe" %% "circe-testing" % Version.circe
     val circeGenericExtras = "io.circe" %% "circe-generic-extras" % Version.circe
   }
 
