@@ -28,6 +28,6 @@ case class connection_terminate() extends OperationMessage
 //case class GqlConnectionError(payload: Map[String, Any])   extends OperationMessage
 case class connection_ack() extends OperationMessage
 //case class GqlData(id: String, payload: Map[String, Any])  extends OperationMessage
-//case class error(id: String, payload: Map[String, Any]) extends OperationMessage
-case class complete(id: String) extends OperationMessage
-case class ka()                 extends OperationMessage
+case class error(id: String, payload: Map[String, Any]) extends OperationMessage
+case class complete(id: String)                         extends OperationMessage
+case class ka()                                         extends OperationMessage
