@@ -19,6 +19,7 @@ package net.sigmalab.artemis.codecs.circe
 import io.circe._
 import io.circe.generic.extras._
 import io.circe.generic.semiauto._
+//import shapeless._
 //import io.circe.generic.extras.semiauto.{ deriveDecoder, deriveEncoder }
 //import io.circe.generic.extras.{ AutoDerivation, Configuration }
 //import io.circe.{ Decoder, Encoder }
