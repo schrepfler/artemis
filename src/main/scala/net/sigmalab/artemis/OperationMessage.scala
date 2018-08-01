@@ -41,7 +41,7 @@ case class GqlStart(withId: Some[String], withPayload: Some[JsonObject]) extends
   override def `type`: String = "GQL_START"
 }
 
-case class GqlStop(withId: Option[String]) extends OperationMessage[JsonObject]  {
+case class GqlStop(withId: Some[String]) extends OperationMessage[JsonObject]  {
 
   override def id: Option[String] = withId
   override def payload: Option[JsonObject] = None
@@ -74,7 +74,7 @@ case class GqlConnectionAck() extends OperationMessage[JsonObject] {
 
 }
 
-case class GqlData(withId: Option[String], withPayload: Option[JsonObject]) extends OperationMessage[JsonObject] {
+case class GqlData(withId: Some[String], withPayload: Option[JsonObject]) extends OperationMessage[JsonObject] {
 
   override def id: Option[String] = withId
   override def payload: Option[JsonObject] = withPayload
@@ -82,7 +82,7 @@ case class GqlData(withId: Option[String], withPayload: Option[JsonObject]) exte
 
 }
 
-case class GqlError(withId: Option[String], withPayload: Some[String]) extends OperationMessage[String] {
+case class GqlError(withId: Some[String], withPayload: Some[String]) extends OperationMessage[String] {
 
   override def id: Option[String] = withId
   override def payload: Option[String] = withPayload
@@ -90,7 +90,7 @@ case class GqlError(withId: Option[String], withPayload: Some[String]) extends O
 
 }
 
-case class GqlComplete(withId: Option[String]) extends OperationMessage[JsonObject] {
+case class GqlComplete(withId: Some[String]) extends OperationMessage[JsonObject] {
 
   override def id: Option[String] = withId
   override def payload: Option[JsonObject] = None
