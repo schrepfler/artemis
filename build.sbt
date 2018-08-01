@@ -26,9 +26,9 @@ lazy val artemis =
 lazy val library =
   new {
     object Version {
-      val scalaCheck = "1.13.5"
-      val scalaTest  = "3.0.4"
-      val circe = "0.9.0-M1"
+      val scalaCheck = "1.14.0"
+      val scalaTest  = "3.0.5"
+      val circe = "0.10.0-M1"
     }
     val scalaCheck = "org.scalacheck" %% "scalacheck" % Version.scalaCheck
     val scalaTest  = "org.scalatest"  %% "scalatest"  % Version.scalaTest
@@ -50,7 +50,7 @@ lazy val settings =
 
 lazy val commonSettings =
   Seq(
-    scalaVersion := "2.12.3",
+    scalaVersion := "2.12.6",
     organization := "default",
     organizationName := "Sigmalab",
     startYear := Some(2017),
