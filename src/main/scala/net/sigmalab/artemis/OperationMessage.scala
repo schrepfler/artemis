@@ -16,18 +16,92 @@
 
 package net.sigmalab.artemis
 
-sealed trait OperationMessage
+import io.circe.JsonObject
+
+sealed trait OperationMessage[T] {
+
+  def id: Option[String]
+  def payload: Option[T]
+  def `type`: String
+}
 
 // Client messages
-//case class GqlConnectionInit(payload: Map[String, Any])    extends OperationMessage
-//case class GqlStart(id: String, payload: Map[String, Any]) extends OperationMessage
-case class stop(id: String)       extends OperationMessage
-case class connection_terminate() extends OperationMessage
+case class GqlConnectionInit(withPayload: Some[JsonObject]) extends OperationMessage[JsonObject] {
+
+  override def id: Option[String] = None
+  override def payload: Option[JsonObject] = withPayload
+  override def `type`: String = "GQL_CONNECTION_INIT"
+
+}
+
+case class GqlStart(withId: Some[String], withPayload: Some[JsonObject]) extends OperationMessage[JsonObject] {
+
+  override def id: Option[String] = withId
+  override def payload: Option[JsonObject] = withPayload
+  override def `type`: String = "GQL_START"
+}
+
+case class GqlStop(withId: Option[String]) extends OperationMessage[JsonObject]  {
+
+  override def id: Option[String] = withId
+  override def payload: Option[JsonObject] = None
+  override def `type`: String = "GQL_STOP"
+
+}
+
+case class GqlConnectionTerminate() extends OperationMessage[JsonObject] {
+
+  override def id: Option[String] = None
+  override def payload: Option[JsonObject] = None
+  override def `type`: String = "GQL_CONNECTION_TERMINATE"
+
+}
 
 // Server messages
-//case class GqlConnectionError(payload: Map[String, Any])   extends OperationMessage
-case class connection_ack() extends OperationMessage
-//case class GqlData(id: String, payload: Map[String, Any])  extends OperationMessage
-case class error(id: String, payload: Map[String, Any]) extends OperationMessage
-case class complete(id: String)                         extends OperationMessage
-case class ka()                                         extends OperationMessage
+case class GqlConnectionError(withPayload: Some[JsonObject]) extends OperationMessage[JsonObject] {
+
+  override def id: Option[String] = None
+  override def payload: Option[JsonObject] = None
+  override def `type`: String = "GQL_CONNECTION_ERROR"
+
+}
+
+case class GqlConnectionAck() extends OperationMessage[JsonObject] {
+
+  override def id: Option[String] = None
+  override def payload: Option[JsonObject] = None
+  override def `type`: String = "GQL_CONNECTION_ACK"
+
+}
+
+case class GqlData(withId: Option[String], withPayload: Option[JsonObject]) extends OperationMessage[JsonObject] {
+
+  override def id: Option[String] = withId
+  override def payload: Option[JsonObject] = withPayload
+  override def `type`: String = "GQL_DATA"
+
+}
+
+case class GqlError(withId: Option[String], withPayload: Some[String]) extends OperationMessage[String] {
+
+  override def id: Option[String] = withId
+  override def payload: Option[String] = withPayload
+  override def `type`: String = "GQL_ERROR"
+
+}
+
+case class GqlComplete(withId: Option[String]) extends OperationMessage[JsonObject] {
+
+  override def id: Option[String] = withId
+  override def payload: Option[JsonObject] = None
+  override def `type`: String = "GQL_COMPLETE"
+
+}
+
+case class GqlKeepAlive() extends OperationMessage[JsonObject] {
+
+  override def id: Option[String] = None
+  override def payload: Option[JsonObject] = None
+  override def `type`: String = "GQL_CONNECTION_KEEP_ALIVE"
+
+}
