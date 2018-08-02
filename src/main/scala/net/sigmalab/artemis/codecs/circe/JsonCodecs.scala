@@ -26,11 +26,31 @@ import net.sigmalab.artemis._
 object JsonCodecs extends AutoDerivation {
 
   implicit val operationMessageEncoder = new Encoder[OperationMessage[_]] {
-    override final def apply(operationMessage: OperationMessage[_]): Json = Json.obj(
-      ("id", Json.fromString(operationMessage.id.orNull)),
-      ("payload", Json.fromJsonObject(operationMessage.payload.orNull)),
-      ("type", Json.fromString(operationMessage.`type`))
-    )
+
+    override final def apply(operationMessage: OperationMessage[_]): Json = {
+      val idField: (String, Json) = for {
+        id <- operationMessage.id
+        idValue <- Json.fromString(id)
+      } yield ("id", idValue)
+
+      val payloadField: (String, Json) = for {
+        payload <- operationMessage.payload
+        payloadValue <- payload match {
+          case jsonObject: JsonObject => Json.fromJsonObject(jsonObject)
+          case _ => Json.fromString(payload.asInstanceOf[String])
+        }
+      } yield ("payload", payload)
+
+      val typeField: (String, Json) = for {
+         msgType <- Json.fromString(operationMessage.`type`)
+      } yield ("type", msgType)
+
+      Json.obj(
+        idField,
+        payloadField,
+        typeField
+      )
+    }
   }
 
   private val operationMessageDecoders = Map(
@@ -91,7 +111,7 @@ object JsonCodecs extends AutoDerivation {
 
   implicit val operationMessageDecoder: Decoder[OperationMessage[_]] = for {
     contextType <- Decoder[String].prepare(_.downField("type"))
-    value <- operationMessageDecoders
+    value <- operationMessageDecoders(contextType)
   } yield value
 
 }
