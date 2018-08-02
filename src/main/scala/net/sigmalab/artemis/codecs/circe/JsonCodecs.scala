@@ -69,9 +69,18 @@ object JsonCodecs extends AutoDerivation {
     }
 
     val payloadField: Option[(String, Json)] = operationMessage.payload match {
-      case jsonObject: Some[JsonObject] => Some("payload", Json.fromJsonObject(jsonObject.get))
-      case jsonString: Some[String] => Some("payload", Json.fromString(jsonString.get))
-      case None => None
+      case jsonObject: Some[JsonObject] => {
+        println("jsonObject")
+        Some("payload", Json.fromJsonObject(jsonObject.get))
+      }
+      case jsonString: Some[String] => {
+        println("jsonString")
+        Some("payload", Json.fromString(jsonString.get))
+      }
+      case None => {
+        println("None!")
+        None
+      }
     }
 
     val typeField: Option[(String, Json)] = operationMessage.`type` match {
@@ -80,7 +89,9 @@ object JsonCodecs extends AutoDerivation {
 
     val fields: List[Option[(String, Json)]] = List(idField, payloadField, typeField)
 
-    val fieldsAsVarargs: Map[String, Json] = Map(fields.map { somePair => somePair.get }: _*)
+    val fieldsAsVarargs: Map[String, Json] = Map(fields.filter(predicate => predicate.isDefined).map{ pair => pair.get }: _*)
+
+      //Map(fields.map{ somePair: Some[(String, Json)] => somePair.get }: _*)
 
     Json.obj(
       fieldsAsVarargs.toSeq: _*

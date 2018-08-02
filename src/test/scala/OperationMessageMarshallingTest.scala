@@ -39,13 +39,14 @@ class OperationMessageMarshallingTest extends FlatSpec with Matchers {
   "A GqlConnectionInit" should "be encodable to JSON" in {
     val gqlConnectionInit     = GqlConnectionInit(Some(JsonObject.empty))
     val gqlConnectionInitJson = gqlConnectionInit.asJson
-    gqlConnectionInitJson.noSpaces should be("""{"type":"GqlConnectionInit"}""")
+
+    gqlConnectionInitJson.noSpaces should be("""{"payload":{},"type":"connection_init"}""")
   }
 
   "A GqlStart" should "be encodable to JSON" in {
     val gqlStart     = GqlStart(Some("id"), Some(JsonObject.empty))
     val gqlStartJson = gqlStart.asJson
-    gqlStartJson.noSpaces should be("""{"type":"GqlStart"}""")
+    gqlStartJson.noSpaces should be("""{"id":"id","payload":{},"type":"start"}""")
   }
 
   "A stop" should "be encodable to JSON" in {
@@ -63,19 +64,19 @@ class OperationMessageMarshallingTest extends FlatSpec with Matchers {
   "A error" should "be encodable to JSON" in {
     val gqlConnectionError     = artemis.GqlError(Some("id"), Some("Error message"))
     val gqlConnectionErrorJson = gqlConnectionError.asJson
-    gqlConnectionErrorJson.noSpaces should be("""{"type":"GqlConnectionError"}""")
+    gqlConnectionErrorJson.noSpaces should be("""{"id":"id","payload":"Error message","type":"error"}""")
   }
 
   "A GqlData" should "be encodable to JSON" in {
     val gqlData     = GqlData(Some("id"), Some(JsonObject.empty))
     val gqlDataJson = gqlData.asJson
-    gqlDataJson.noSpaces should be("""{"type":"GqlData"}""")
+    gqlDataJson.noSpaces should be("""{"id":"id","payload":{},"type":"data"}""")
   }
 
   "A GqlError" should "be encodable to JSON" in {
     val gqlError  = GqlError(Some("id"), Some("Error message"))
     val gqlErrorJson = gqlError.asJson
-    gqlErrorJson.noSpaces should be("""{"type":"GqlError"}""")
+    gqlErrorJson.noSpaces should be("""{"id":"id","payload":"Error message","type":"error"}""")
   }
 
   "A GqlConnectionKeepAlive" should "be encodable to JSON" in {
