@@ -17,19 +17,9 @@
 package net.sigmalab.artemis
 
 import io.circe.JsonObject
+import OperationMessage._
 
 sealed trait OperationMessage[T] {
-
-  final val GQL_CONNECTION_INIT = "connection_init"
-  final val GQL_CONNECTION_ACK = "connection_ack"
-  final val GQL_CONNECTION_ERROR = "connection_error"
-  final val GQL_CONNECTION_KEEP_ALIVE = "ka"
-  final val GQL_CONNECTION_TERMINATE = "connection_terminate"
-  final val GQL_START = "start"
-  final val GQL_DATA = "data"
-  final val GQL_ERROR = "error"
-  final val GQL_COMPLETE = "complete"
-  final val GQL_STOP = "stop"
 
   def id: Option[String]
   def payload: Option[T]
@@ -114,5 +104,20 @@ final case class GqlKeepAlive() extends OperationMessage[JsonObject] {
   override def id: Option[String] = None
   override def payload: Option[JsonObject] = None
   override def `type`: String = GQL_CONNECTION_KEEP_ALIVE
+
+}
+
+object OperationMessage {
+
+  final val GQL_CONNECTION_INIT = "connection_init"
+  final val GQL_CONNECTION_ACK = "connection_ack"
+  final val GQL_CONNECTION_ERROR = "connection_error"
+  final val GQL_CONNECTION_KEEP_ALIVE = "ka"
+  final val GQL_CONNECTION_TERMINATE = "connection_terminate"
+  final val GQL_START = "start"
+  final val GQL_DATA = "data"
+  final val GQL_ERROR = "error"
+  final val GQL_COMPLETE = "complete"
+  final val GQL_STOP = "stop"
 
 }
