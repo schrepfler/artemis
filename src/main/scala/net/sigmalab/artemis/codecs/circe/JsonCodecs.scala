@@ -26,8 +26,31 @@ import OperationMessage._
   */
 object JsonCodecs extends AutoDerivation {
 
-  val ClassOfString = classOf[String]
-  val ClassOfJsonObject = classOf[JsonObject]
+  implicit val operationMessageEncoder: Encoder[OperationMessage[_]] = (operationMessage: OperationMessage[_]) => {
+
+    val idField: Option[(String, Json)] = operationMessage.id match {
+      case Some(id) => Some("id", Json.fromString(id))
+      case None => None
+    }
+
+    val payloadField: Option[(String, Json)] = operationMessage.payload match {
+      case Some(str: String) => Some("payload", Json.fromString(str.asInstanceOf[String]))
+      case Some(obj: JsonObject) => Some("payload", Json.fromJsonObject(obj.asInstanceOf[JsonObject]))
+      case None => None
+    }
+
+    val typeField: Option[(String, Json)] = operationMessage.`type` match {
+      case typeVal: String => Some("type", Json.fromString(typeVal))
+    }
+
+    val fields: List[Option[(String, Json)]] = List(idField, payloadField, typeField)
+
+    val fieldsAsVarargs: Map[String, Json] = Map(fields.filter(predicate => predicate.isDefined).map{ pair => pair.get }: _*)
+
+    Json.obj(
+      fieldsAsVarargs.toSeq: _*
+    )
+  }
 
   implicit val encoderGqlConnectionAck: Encoder[GqlConnectionAck] = gqlConnectionAck => {
     operationMessageEncoder(gqlConnectionAck)
@@ -63,38 +86,6 @@ object JsonCodecs extends AutoDerivation {
 
   implicit val encoderGqlKeepAlive: Encoder[GqlKeepAlive] = gqlKeepAlive => {
     operationMessageEncoder(gqlKeepAlive)
-  }
-
-  implicit val operationMessageEncoder: Encoder[OperationMessage[_]] = (operationMessage: OperationMessage[_]) => {
-
-    val idField: Option[(String, Json)] = operationMessage.id match {
-      case Some(id) => Some("id", Json.fromString(id))
-      case None => None
-    }
-
-    val payloadField: Option[(String, Json)] = operationMessage.payload match {
-      case Some(payload) => {
-        payload.getClass match { // this is problematic as Option type gets erased and the payload is polymorphic.
-          case ClassOfString => Some("payload", Json.fromString(payload.asInstanceOf[String]))
-          case _ => Some("payload", Json.fromJsonObject(payload.asInstanceOf[JsonObject]))
-        }
-      }
-      case None => {
-        None
-      }
-    }
-
-    val typeField: Option[(String, Json)] = operationMessage.`type` match {
-      case typeVal: String => Some("type", Json.fromString(typeVal))
-    }
-
-    val fields: List[Option[(String, Json)]] = List(idField, payloadField, typeField)
-
-    val fieldsAsVarargs: Map[String, Json] = Map(fields.filter(predicate => predicate.isDefined).map{ pair => pair.get }: _*)
-
-    Json.obj(
-      fieldsAsVarargs.toSeq: _*
-    )
   }
 
   val decoderGqlKeepAlive: Decoder[GqlKeepAlive] = for {
