@@ -16,7 +16,6 @@
 
 package net.sigmalab.artemis.codecs.circe
 
-import io.circe.Decoder.Result
 import io.circe._
 import io.circe.generic.extras._
 import net.sigmalab.artemis._
@@ -26,33 +25,73 @@ import net.sigmalab.artemis._
   */
 object JsonCodecs extends AutoDerivation {
 
-  implicit val operationMessageEncoder      = new Encoder[OperationMessage[_]] {
+  implicit val operationMessageEncoder = new Encoder[OperationMessage[_]] {
     override final def apply(operationMessage: OperationMessage[_]): Json = Json.obj(
       ("id", Json.fromString(operationMessage.id.orNull)),
       ("payload", Json.fromJsonObject(operationMessage.payload.orNull)),
       ("type", Json.fromString(operationMessage.`type`))
     )
   }
-  implicit val operationMessageDecoder      = new Decoder[OperationMessage[_]] {
-    override final def apply(c: HCursor): Result[OperationMessage[_]] =
-      for {
-        _id <- c.downField("id").as[Option[String]]
-        _payload <- c.downField("payload").as[Option[JsonObject]]
-        _type <- c.downField("type").as[String]
-      } yield (_id, _payload, _type) {
-        _type match {
-          case "GQL_CONNECTION_INIT" => _payload.fold()(payload => GqlConnectionInit(Some(payload)))
-          case "GQL_STOP" => _id.fold()(id => GqlStop(Some(id)))
-          case "GQL_ERROR" => _id.fold()(id => _payload.fold()(payload => GqlError(Some(id), Some(payload.toString()))))
-          case "GQL_CONNECTION_KEEP_ALIVE" => GqlKeepAlive()
-          case "GQL_CONNECTION_TERMINATE" => GqlConnectionTerminate()
-          case "GQL_COMPLETE" => _id.fold()(id => GqlComplete(Some(id)))
-          case "GQL_CONNECTION_ACK" => GqlConnectionAck()
-          case "GQL_CONNECTION_ERROR" => _payload.fold()(json => GqlConnectionError(Some(json)))
-          case "GQL_DATA" => _id.fold()(id => _payload.fold()(payload => GqlData(Some(id), Some(payload))))
-          case "GQL_START" => _id.fold()(id => _payload.fold()(payload => GqlStart(Some(id), Some(payload))))
-          case _ => DecodingFailure("Unable to decode message", c.history)
-        }
-      }
-  }
+
+  private val operationMessageDecoders = Map(
+    "GQL_CONNECTION_KEEP_ALIVE" -> decoderGqlKeepAlive,
+    "GQL_CONNECTION_ACK" -> decoderGqlConnectionAck,
+    "GQL_CONNECTION_TERMINATE" -> decoderGqlConnectionTerminate,
+    "GQL_COMPLETE" -> decoderGqlComplete,
+    "GQL_STOP" -> decoderGqlStop,
+    "GQL_ERROR" -> decoderGqlError,
+    "GQL_DATA" -> decoderGqlData,
+    "GQL_START" -> decoderGqlStart,
+    "GQL_CONNECTION_INIT" -> decoderGqlConnectionInit,
+    "GQL_CONNECTION_ERROR" -> decoderGqlConnectionError
+  )
+
+  val decoderGqlKeepAlive: Decoder[GqlKeepAlive] = for {
+    ka <- Decoder[String].prepare(_.downField("type"))
+  } yield GqlKeepAlive()
+
+  val decoderGqlConnectionAck: Decoder[GqlConnectionAck] = for {
+    ack <- Decoder[String].prepare(_.downField("type"))
+  } yield GqlConnectionAck()
+
+  val decoderGqlConnectionTerminate: Decoder[GqlConnectionTerminate] = for {
+    terminate <- Decoder[String].prepare(_.downField("type"))
+  } yield GqlConnectionTerminate()
+
+  val decoderGqlComplete: Decoder[GqlComplete] = for {
+    _id <- Decoder[String].prepare(_.downField("id"))
+  } yield GqlComplete(Some(_id))
+
+  val decoderGqlStop: Decoder[GqlStop] = for {
+    _id <- Decoder[String].prepare(_.downField("id"))
+  } yield GqlStop(Some(_id))
+
+  val decoderGqlError: Decoder[GqlError] = for {
+    _id <- Decoder[String].prepare(_.downField("id"))
+    _payload <- Decoder[String].prepare(_.downField("payload"))
+  } yield GqlError(Some(_id), Some(_payload))
+
+  val decoderGqlData: Decoder[GqlData] = for {
+    _id <- Decoder[String].prepare(_.downField("id"))
+    _payload <- Decoder[JsonObject].prepare(_.downField("payload"))
+  } yield GqlData(Some(_id), Some(_payload))
+
+  val decoderGqlStart: Decoder[GqlStart] = for {
+    _id <- Decoder[String].prepare(_.downField("id"))
+    _payload <- Decoder[JsonObject].prepare(_.downField("payload"))
+  } yield GqlStart(Some(_id), Some(_payload))
+
+  val decoderGqlConnectionInit: Decoder[GqlConnectionInit] = for {
+    _payload <- Decoder[JsonObject].prepare(_.downField("payload"))
+  } yield GqlConnectionInit(Some(_payload))
+
+  val decoderGqlConnectionError: Decoder[GqlConnectionError] = for {
+    _payload <- Decoder[JsonObject].prepare(_.downField("payload"))
+  } yield GqlConnectionError(Some(_payload))
+
+  implicit val operationMessageDecoder: Decoder[OperationMessage[_]] = for {
+    contextType <- Decoder[String].prepare(_.downField("type"))
+    value <- operationMessageDecoders
+  } yield value
+
 }

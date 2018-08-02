@@ -16,7 +16,9 @@
 
 package net.sigmalab.artemis
 
-import io.circe.JsonObject
+import io.circe.{Decoder, JsonObject}
+import io.circe.generic.extras.decoding.ConfiguredDecoder
+import shapeless.Lazy
 
 sealed trait OperationMessage[T] {
 
@@ -26,7 +28,7 @@ sealed trait OperationMessage[T] {
 }
 
 // Client messages
-case class GqlConnectionInit(withPayload: Some[JsonObject]) extends OperationMessage[JsonObject] {
+final case class GqlConnectionInit(withPayload: Some[JsonObject]) extends OperationMessage[JsonObject] {
 
   override def id: Option[String] = None
   override def payload: Option[JsonObject] = withPayload
@@ -34,14 +36,14 @@ case class GqlConnectionInit(withPayload: Some[JsonObject]) extends OperationMes
 
 }
 
-case class GqlStart(withId: Some[String], withPayload: Some[JsonObject]) extends OperationMessage[JsonObject] {
+final case class GqlStart(withId: Some[String], withPayload: Some[JsonObject]) extends OperationMessage[JsonObject] {
 
   override def id: Option[String] = withId
   override def payload: Option[JsonObject] = withPayload
   override def `type`: String = "GQL_START"
 }
 
-case class GqlStop(withId: Some[String]) extends OperationMessage[JsonObject]  {
+final case class GqlStop(withId: Some[String]) extends OperationMessage[JsonObject]  {
 
   override def id: Option[String] = withId
   override def payload: Option[JsonObject] = None
@@ -49,7 +51,7 @@ case class GqlStop(withId: Some[String]) extends OperationMessage[JsonObject]  {
 
 }
 
-case class GqlConnectionTerminate() extends OperationMessage[JsonObject] {
+final case class GqlConnectionTerminate() extends OperationMessage[JsonObject] {
 
   override def id: Option[String] = None
   override def payload: Option[JsonObject] = None
@@ -58,7 +60,7 @@ case class GqlConnectionTerminate() extends OperationMessage[JsonObject] {
 }
 
 // Server messages
-case class GqlConnectionError(withPayload: Some[JsonObject]) extends OperationMessage[JsonObject] {
+final case class GqlConnectionError(withPayload: Some[JsonObject]) extends OperationMessage[JsonObject] {
 
   override def id: Option[String] = None
   override def payload: Option[JsonObject] = None
@@ -66,7 +68,7 @@ case class GqlConnectionError(withPayload: Some[JsonObject]) extends OperationMe
 
 }
 
-case class GqlConnectionAck() extends OperationMessage[JsonObject] {
+final case class GqlConnectionAck() extends OperationMessage[JsonObject] {
 
   override def id: Option[String] = None
   override def payload: Option[JsonObject] = None
@@ -74,7 +76,7 @@ case class GqlConnectionAck() extends OperationMessage[JsonObject] {
 
 }
 
-case class GqlData(withId: Some[String], withPayload: Option[JsonObject]) extends OperationMessage[JsonObject] {
+final case class GqlData(withId: Some[String], withPayload: Option[JsonObject]) extends OperationMessage[JsonObject] {
 
   override def id: Option[String] = withId
   override def payload: Option[JsonObject] = withPayload
@@ -82,7 +84,7 @@ case class GqlData(withId: Some[String], withPayload: Option[JsonObject]) extend
 
 }
 
-case class GqlError(withId: Some[String], withPayload: Some[String]) extends OperationMessage[String] {
+final case class GqlError(withId: Some[String], withPayload: Some[String]) extends OperationMessage[String] {
 
   override def id: Option[String] = withId
   override def payload: Option[String] = withPayload
@@ -90,7 +92,7 @@ case class GqlError(withId: Some[String], withPayload: Some[String]) extends Ope
 
 }
 
-case class GqlComplete(withId: Some[String]) extends OperationMessage[JsonObject] {
+final case class GqlComplete(withId: Some[String]) extends OperationMessage[JsonObject] {
 
   override def id: Option[String] = withId
   override def payload: Option[JsonObject] = None
@@ -98,7 +100,7 @@ case class GqlComplete(withId: Some[String]) extends OperationMessage[JsonObject
 
 }
 
-case class GqlKeepAlive() extends OperationMessage[JsonObject] {
+final case class GqlKeepAlive() extends OperationMessage[JsonObject] {
 
   override def id: Option[String] = None
   override def payload: Option[JsonObject] = None
