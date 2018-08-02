@@ -20,65 +20,47 @@ import io.circe._
 import io.circe.generic.extras._
 import net.sigmalab.artemis._
 
-import scala.collection.immutable
-
 /**
   *  Ref. http://immutables.pl/2017/02/25/customizing-circes-auto-generic-derivation/
   */
 object JsonCodecs extends AutoDerivation {
 
-  implicit val operationMessageEncoder = new Encoder[OperationMessage[_]] {
+  implicit val operationMessageEncoder: Encoder[OperationMessage[_]] = (operationMessage: OperationMessage[_]) => {
 
-    override final def apply(operationMessage: OperationMessage[_]): Json = {
-
-      val idField: Option[(String, Json)] = operationMessage.id match {
-        case Some(id) => Some("id", Json.fromString(id))
-        case None => None
-      }
-
-      val payloadField: Option[(String, Json)] = operationMessage.payload match {
-          case jsonObject: Some[JsonObject] => Some("payload", Json.fromJsonObject(jsonObject.get))
-          case jsonString: Some[String] => Some("payload", Json.fromString(jsonString.get))
-          case None => None
-        }
-
-      val typeField: Option[(String, Json)] = operationMessage.`type` match {
-        case typeVal: String => Some("type", Json.fromString(typeVal))
-      }
-
-      val fields: List[Option[(String, Json)]] = List(idField, payloadField, typeField)
-
-      val fieldsAsVarargs: Map[String, Json] = Map(fields.map{ somePair => somePair.get}:_*)
-
-      Json.obj(
-        fieldsAsVarargs.toSeq:_*
-      )
+    val idField: Option[(String, Json)] = operationMessage.id match {
+      case Some(id) => Some("id", Json.fromString(id))
+      case None => None
     }
+
+    val payloadField: Option[(String, Json)] = operationMessage.payload match {
+      case jsonObject: Some[JsonObject] => Some("payload", Json.fromJsonObject(jsonObject.get))
+      case jsonString: Some[String] => Some("payload", Json.fromString(jsonString.get))
+      case None => None
+    }
+
+    val typeField: Option[(String, Json)] = operationMessage.`type` match {
+      case typeVal: String => Some("type", Json.fromString(typeVal))
+    }
+
+    val fields: List[Option[(String, Json)]] = List(idField, payloadField, typeField)
+
+    val fieldsAsVarargs: Map[String, Json] = Map(fields.map { somePair => somePair.get }: _*)
+
+    Json.obj(
+      fieldsAsVarargs.toSeq: _*
+    )
   }
 
-  private val operationMessageDecoders = Map(
-    "GQL_CONNECTION_KEEP_ALIVE" -> decoderGqlKeepAlive,
-    "GQL_CONNECTION_ACK" -> decoderGqlConnectionAck,
-    "GQL_CONNECTION_TERMINATE" -> decoderGqlConnectionTerminate,
-    "GQL_COMPLETE" -> decoderGqlComplete,
-    "GQL_STOP" -> decoderGqlStop,
-    "GQL_ERROR" -> decoderGqlError,
-    "GQL_DATA" -> decoderGqlData,
-    "GQL_START" -> decoderGqlStart,
-    "GQL_CONNECTION_INIT" -> decoderGqlConnectionInit,
-    "GQL_CONNECTION_ERROR" -> decoderGqlConnectionError
-  )
-
   val decoderGqlKeepAlive: Decoder[GqlKeepAlive] = for {
-    ka <- Decoder[String].prepare(_.downField("type"))
+    _ <- Decoder[String].prepare(_.downField("type"))
   } yield GqlKeepAlive()
 
   val decoderGqlConnectionAck: Decoder[GqlConnectionAck] = for {
-    ack <- Decoder[String].prepare(_.downField("type"))
+    _ <- Decoder[String].prepare(_.downField("type"))
   } yield GqlConnectionAck()
 
   val decoderGqlConnectionTerminate: Decoder[GqlConnectionTerminate] = for {
-    terminate <- Decoder[String].prepare(_.downField("type"))
+    _ <- Decoder[String].prepare(_.downField("type"))
   } yield GqlConnectionTerminate()
 
   val decoderGqlComplete: Decoder[GqlComplete] = for {
@@ -111,6 +93,19 @@ object JsonCodecs extends AutoDerivation {
   val decoderGqlConnectionError: Decoder[GqlConnectionError] = for {
     _payload <- Decoder[JsonObject].prepare(_.downField("payload"))
   } yield GqlConnectionError(Some(_payload))
+
+  private val operationMessageDecoders = Map(
+    "GQL_CONNECTION_KEEP_ALIVE" -> decoderGqlKeepAlive,
+    "GQL_CONNECTION_ACK" -> decoderGqlConnectionAck,
+    "GQL_CONNECTION_TERMINATE" -> decoderGqlConnectionTerminate,
+    "GQL_COMPLETE" -> decoderGqlComplete,
+    "GQL_STOP" -> decoderGqlStop,
+    "GQL_ERROR" -> decoderGqlError,
+    "GQL_DATA" -> decoderGqlData,
+    "GQL_START" -> decoderGqlStart,
+    "GQL_CONNECTION_INIT" -> decoderGqlConnectionInit,
+    "GQL_CONNECTION_ERROR" -> decoderGqlConnectionError
+  )
 
   implicit val operationMessageDecoder: Decoder[OperationMessage[_]] = for {
     contextType <- Decoder[String].prepare(_.downField("type"))
