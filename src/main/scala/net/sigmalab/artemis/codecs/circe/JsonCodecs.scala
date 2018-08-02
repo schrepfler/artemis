@@ -20,6 +20,8 @@ import io.circe._
 import io.circe.generic.extras._
 import net.sigmalab.artemis._
 
+import scala.collection.immutable
+
 /**
   *  Ref. http://immutables.pl/2017/02/25/customizing-circes-auto-generic-derivation/
   */
@@ -28,27 +30,28 @@ object JsonCodecs extends AutoDerivation {
   implicit val operationMessageEncoder = new Encoder[OperationMessage[_]] {
 
     override final def apply(operationMessage: OperationMessage[_]): Json = {
-      val idField: (String, Json) = for {
-        id <- operationMessage.id
-        idValue <- Json.fromString(id)
-      } yield ("id", idValue)
 
-      val payloadField: (String, Json) = for {
-        payload <- operationMessage.payload
-        payloadValue <- payload match {
-          case jsonObject: JsonObject => Json.fromJsonObject(jsonObject)
-          case _ => Json.fromString(payload.asInstanceOf[String])
+      val idField: Option[(String, Json)] = operationMessage.id match {
+        case Some(id) => Some("id", Json.fromString(id))
+        case None => None
+      }
+
+      val payloadField: Option[(String, Json)] = operationMessage.payload match {
+          case jsonObject: Some[JsonObject] => Some("payload", Json.fromJsonObject(jsonObject.get))
+          case jsonString: Some[String] => Some("payload", Json.fromString(jsonString.get))
+          case None => None
         }
-      } yield ("payload", payload)
 
-      val typeField: (String, Json) = for {
-         msgType <- Json.fromString(operationMessage.`type`)
-      } yield ("type", msgType)
+      val typeField: Option[(String, Json)] = operationMessage.`type` match {
+        case typeVal: String => Some("type", Json.fromString(typeVal))
+      }
+
+      val fields: List[Option[(String, Json)]] = List(idField, payloadField, typeField)
+
+      val fieldsAsVarargs: Map[String, Json] = Map(fields.map{ somePair => somePair.get}:_*)
 
       Json.obj(
-        idField,
-        payloadField,
-        typeField
+        fieldsAsVarargs.toSeq:_*
       )
     }
   }
