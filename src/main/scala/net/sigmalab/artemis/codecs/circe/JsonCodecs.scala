@@ -19,6 +19,7 @@ package net.sigmalab.artemis.codecs.circe
 import io.circe._
 import io.circe.generic.extras._
 import net.sigmalab.artemis._
+import OperationMessage._
 
 /**
   *  Ref. http://immutables.pl/2017/02/25/customizing-circes-auto-generic-derivation/
@@ -90,7 +91,7 @@ object JsonCodecs extends AutoDerivation {
     val fields: List[Option[(String, Json)]] = List(idField, payloadField, typeField)
 
     val fieldsAsVarargs: Map[String, Json] = Map(fields.filter(predicate => predicate.isDefined).map{ pair => pair.get }: _*)
-    
+
     Json.obj(
       fieldsAsVarargs.toSeq: _*
     )
@@ -140,16 +141,16 @@ object JsonCodecs extends AutoDerivation {
   } yield GqlConnectionError(Some(_payload))
 
   private val operationMessageDecoders = Map(
-    "GQL_CONNECTION_KEEP_ALIVE" -> decoderGqlKeepAlive,
-    "GQL_CONNECTION_ACK" -> decoderGqlConnectionAck,
-    "GQL_CONNECTION_TERMINATE" -> decoderGqlConnectionTerminate,
-    "GQL_COMPLETE" -> decoderGqlComplete,
-    "GQL_STOP" -> decoderGqlStop,
-    "GQL_ERROR" -> decoderGqlError,
-    "GQL_DATA" -> decoderGqlData,
-    "GQL_START" -> decoderGqlStart,
-    "GQL_CONNECTION_INIT" -> decoderGqlConnectionInit,
-    "GQL_CONNECTION_ERROR" -> decoderGqlConnectionError
+    GQL_CONNECTION_KEEP_ALIVE -> decoderGqlKeepAlive,
+    GQL_CONNECTION_ACK -> decoderGqlConnectionAck,
+    GQL_CONNECTION_TERMINATE -> decoderGqlConnectionTerminate,
+    GQL_COMPLETE -> decoderGqlComplete,
+    GQL_STOP -> decoderGqlStop,
+    GQL_ERROR -> decoderGqlError,
+    GQL_DATA -> decoderGqlData,
+    GQL_START -> decoderGqlStart,
+    GQL_CONNECTION_INIT -> decoderGqlConnectionInit,
+    GQL_CONNECTION_ERROR -> decoderGqlConnectionError
   )
 
   implicit val operationMessageDecoder: Decoder[OperationMessage[_]] = for {
