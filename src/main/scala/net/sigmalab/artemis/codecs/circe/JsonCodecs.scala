@@ -25,6 +25,9 @@ import net.sigmalab.artemis._
   */
 object JsonCodecs extends AutoDerivation {
 
+  val ClassOfString = classOf[String]
+  val ClassOfJsonObject = classOf[JsonObject]
+
   implicit val encoderGqlConnectionAck: Encoder[GqlConnectionAck] = gqlConnectionAck => {
     operationMessageEncoder(gqlConnectionAck)
   }
@@ -69,16 +72,13 @@ object JsonCodecs extends AutoDerivation {
     }
 
     val payloadField: Option[(String, Json)] = operationMessage.payload match {
-      case jsonObject: Some[JsonObject] => {
-        println("jsonObject")
-        Some("payload", Json.fromJsonObject(jsonObject.get))
-      }
-      case jsonString: Some[String] => {
-        println("jsonString")
-        Some("payload", Json.fromString(jsonString.get))
+      case Some(payload) => {
+        payload.getClass match { // this is problematic as Option type gets erased and the payload is polymorphic.
+          case ClassOfString => Some("payload", Json.fromString(payload.asInstanceOf[String]))
+          case _ => Some("payload", Json.fromJsonObject(payload.asInstanceOf[JsonObject]))
+        }
       }
       case None => {
-        println("None!")
         None
       }
     }
@@ -90,9 +90,7 @@ object JsonCodecs extends AutoDerivation {
     val fields: List[Option[(String, Json)]] = List(idField, payloadField, typeField)
 
     val fieldsAsVarargs: Map[String, Json] = Map(fields.filter(predicate => predicate.isDefined).map{ pair => pair.get }: _*)
-
-      //Map(fields.map{ somePair: Some[(String, Json)] => somePair.get }: _*)
-
+    
     Json.obj(
       fieldsAsVarargs.toSeq: _*
     )
