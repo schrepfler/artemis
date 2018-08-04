@@ -25,7 +25,7 @@ import org.scalatest.{FlatSpec, Matchers}
 class OperationMessageMarshallingTest extends FlatSpec with Matchers {
 
   "A connection_ack" should "be encodable to JSON" in {
-    val connection_ack     = GqlConnectionAck()
+    val connection_ack    = GqlConnectionAck()
     val connection_ackJson = connection_ack.asJson
     connection_ackJson.noSpaces should be("""{"type":"connection_ack"}""")
   }

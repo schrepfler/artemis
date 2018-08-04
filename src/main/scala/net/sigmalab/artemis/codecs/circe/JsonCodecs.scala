@@ -26,7 +26,8 @@ import OperationMessage._
   */
 object JsonCodecs extends AutoDerivation {
 
-  implicit val operationMessageEncoder: Encoder[OperationMessage[_]] = (operationMessage: OperationMessage[_]) => {
+
+  implicit def operationMessageEncoder[A <: OperationMessage[_]]: Encoder[A] = (operationMessage: A) => {
 
     val idField: Option[(String, Json)] = operationMessage.id match {
       case Some(id) => Some("id", Json.fromString(id))
@@ -50,42 +51,6 @@ object JsonCodecs extends AutoDerivation {
     Json.obj(
       fieldsAsVarargs.toSeq: _*
     )
-  }
-
-  implicit val encoderGqlConnectionAck: Encoder[GqlConnectionAck] = gqlConnectionAck => {
-    operationMessageEncoder(gqlConnectionAck)
-  }
-
-  implicit val encoderGqlComplete: Encoder[GqlComplete] = gqlComplete => {
-    operationMessageEncoder(gqlComplete)
-  }
-
-  implicit val encoderGqlStart: Encoder[GqlStart] = gqlStart => {
-    operationMessageEncoder(gqlStart)
-  }
-
-  implicit val encoderGqlStop: Encoder[GqlStop] = gqlStop => {
-    operationMessageEncoder(gqlStop)
-  }
-
-  implicit val encoderGqlConnectionInit: Encoder[GqlConnectionInit] = gqlConnectionInit => {
-    operationMessageEncoder(gqlConnectionInit)
-  }
-
-  implicit val encoderGqlConnectionTerminate: Encoder[GqlConnectionTerminate] = gqlConnectionTerminate => {
-    operationMessageEncoder(gqlConnectionTerminate)
-  }
-
-  implicit val encoderGqlData: Encoder[GqlData] = gqlData => {
-    operationMessageEncoder(gqlData)
-  }
-
-  implicit val encoderGqlError: Encoder[GqlError] = gqlError => {
-    operationMessageEncoder(gqlError)
-  }
-
-  implicit val encoderGqlKeepAlive: Encoder[GqlKeepAlive] = gqlKeepAlive => {
-    operationMessageEncoder(gqlKeepAlive)
   }
 
   val decoderGqlKeepAlive: Decoder[GqlKeepAlive] = for {
