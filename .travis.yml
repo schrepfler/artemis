@@ -8,7 +8,7 @@ matrix:
     # Scala 2.12 — JVM — all tests
     - jdk: oraclejdk8
       scala: 2.12.6
-      env: COMMAND=ci-jvm-all
+      env: COMMAND=test
 
 env:
   global:
