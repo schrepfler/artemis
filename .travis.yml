@@ -6,9 +6,9 @@ group: edge
 matrix:
   include:
     # Scala 2.11 — JVM
-    - jdk: oraclejdk8
-      scala: 2.11.12
-      env: COMMAND=test
+#     - jdk: oraclejdk8
+#       scala: 2.11.12
+#       env: COMMAND=test
     # Scala 2.12 — JVM — all tests
     - jdk: oraclejdk8
       scala: 2.12.6
