@@ -1,6 +1,14 @@
-# artemis #
+# Artemis #
 
-Welcome to artemis!
+> Leto bore Apollo and Artemis, delighting in arrows,
+
+> Both of lovely shape like none of the heavenly gods,
+>
+> As she joined in love to the Aegis-bearing ruler.
+> 
+> — Hesiod, Theogony, lines 918–920 (written in the 7th century BC)
+
+Welcome to Artemis!
 
 ## Contribution policy ##
 
