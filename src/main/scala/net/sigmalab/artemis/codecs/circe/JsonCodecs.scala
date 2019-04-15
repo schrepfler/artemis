@@ -26,32 +26,37 @@ import OperationMessage._
   */
 object JsonCodecs extends AutoDerivation {
 
+  implicit def operationMessageEncoder[A <: OperationMessage[_]]: Encoder[A] =
+    (operationMessage: A) => {
 
-  implicit def operationMessageEncoder[A <: OperationMessage[_]]: Encoder[A] = (operationMessage: A) => {
+      val idField: Option[(String, Json)] = operationMessage.id match {
+        case Some(id) => Some("id", Json.fromString(id))
+        case None     => None
+      }
 
-    val idField: Option[(String, Json)] = operationMessage.id match {
-      case Some(id) => Some("id", Json.fromString(id))
-      case None => None
+      val payloadField: Option[(String, Json)] = operationMessage.payload match {
+        case Some(str: String) => Some("payload", Json.fromString(str.asInstanceOf[String]))
+        case Some(obj: JsonObject) =>
+          Some("payload", Json.fromJsonObject(obj.asInstanceOf[JsonObject]))
+        case None => None
+      }
+
+      val typeField: Option[(String, Json)] = operationMessage.`type` match {
+        case typeVal: String => Some("type", Json.fromString(typeVal))
+      }
+
+      val fields: List[Option[(String, Json)]] = List(idField, payloadField, typeField)
+
+      val fieldsAsVarargs: Map[String, Json] = Map(
+        fields.filter(predicate => predicate.isDefined).map { pair =>
+          pair.get
+        }: _*
+      )
+
+      Json.obj(
+        fieldsAsVarargs.toSeq: _*
+      )
     }
-
-    val payloadField: Option[(String, Json)] = operationMessage.payload match {
-      case Some(str: String) => Some("payload", Json.fromString(str.asInstanceOf[String]))
-      case Some(obj: JsonObject) => Some("payload", Json.fromJsonObject(obj.asInstanceOf[JsonObject]))
-      case None => None
-    }
-
-    val typeField: Option[(String, Json)] = operationMessage.`type` match {
-      case typeVal: String => Some("type", Json.fromString(typeVal))
-    }
-
-    val fields: List[Option[(String, Json)]] = List(idField, payloadField, typeField)
-
-    val fieldsAsVarargs: Map[String, Json] = Map(fields.filter(predicate => predicate.isDefined).map{ pair => pair.get }: _*)
-
-    Json.obj(
-      fieldsAsVarargs.toSeq: _*
-    )
-  }
 
   val decoderGqlKeepAlive: Decoder[GqlKeepAlive] = for {
     _ <- Decoder[String].prepare(_.downField("type"))
@@ -74,17 +79,17 @@ object JsonCodecs extends AutoDerivation {
   } yield GqlStop(Some(_id))
 
   val decoderGqlError: Decoder[GqlError] = for {
-    _id <- Decoder[String].prepare(_.downField("id"))
+    _id      <- Decoder[String].prepare(_.downField("id"))
     _payload <- Decoder[String].prepare(_.downField("payload"))
   } yield GqlError(Some(_id), Some(_payload))
 
   val decoderGqlData: Decoder[GqlData] = for {
-    _id <- Decoder[String].prepare(_.downField("id"))
+    _id      <- Decoder[String].prepare(_.downField("id"))
     _payload <- Decoder[JsonObject].prepare(_.downField("payload"))
   } yield GqlData(Some(_id), Some(_payload))
 
   val decoderGqlStart: Decoder[GqlStart] = for {
-    _id <- Decoder[String].prepare(_.downField("id"))
+    _id      <- Decoder[String].prepare(_.downField("id"))
     _payload <- Decoder[JsonObject].prepare(_.downField("payload"))
   } yield GqlStart(Some(_id), Some(_payload))
 
@@ -98,20 +103,20 @@ object JsonCodecs extends AutoDerivation {
 
   private val operationMessageDecoders = Map(
     GQL_CONNECTION_KEEP_ALIVE -> decoderGqlKeepAlive,
-    GQL_CONNECTION_ACK -> decoderGqlConnectionAck,
-    GQL_CONNECTION_TERMINATE -> decoderGqlConnectionTerminate,
-    GQL_COMPLETE -> decoderGqlComplete,
-    GQL_STOP -> decoderGqlStop,
-    GQL_ERROR -> decoderGqlError,
-    GQL_DATA -> decoderGqlData,
-    GQL_START -> decoderGqlStart,
-    GQL_CONNECTION_INIT -> decoderGqlConnectionInit,
-    GQL_CONNECTION_ERROR -> decoderGqlConnectionError
+    GQL_CONNECTION_ACK        -> decoderGqlConnectionAck,
+    GQL_CONNECTION_TERMINATE  -> decoderGqlConnectionTerminate,
+    GQL_COMPLETE              -> decoderGqlComplete,
+    GQL_STOP                  -> decoderGqlStop,
+    GQL_ERROR                 -> decoderGqlError,
+    GQL_DATA                  -> decoderGqlData,
+    GQL_START                 -> decoderGqlStart,
+    GQL_CONNECTION_INIT       -> decoderGqlConnectionInit,
+    GQL_CONNECTION_ERROR      -> decoderGqlConnectionError
   )
 
   implicit val operationMessageDecoder: Decoder[OperationMessage[_]] = for {
     contextType <- Decoder[String].prepare(_.downField("type"))
-    value <- operationMessageDecoders(contextType)
+    value       <- operationMessageDecoders(contextType)
   } yield value
 
 }

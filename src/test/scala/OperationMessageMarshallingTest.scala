@@ -20,12 +20,12 @@ import io.circe.JsonObject
 import io.circe.syntax._
 import net.sigmalab.artemis
 import net.sigmalab.artemis.codecs.circe.JsonCodecs._
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{ FlatSpec, Matchers }
 
 class OperationMessageMarshallingTest extends FlatSpec with Matchers {
 
   "A connection_ack" should "be encodable to JSON" in {
-    val connection_ack    = GqlConnectionAck()
+    val connection_ack     = GqlConnectionAck()
     val connection_ackJson = connection_ack.asJson
     connection_ackJson.noSpaces should be("""{"type":"connection_ack"}""")
   }
@@ -64,7 +64,9 @@ class OperationMessageMarshallingTest extends FlatSpec with Matchers {
   "A error" should "be encodable to JSON" in {
     val gqlConnectionError     = artemis.GqlError(Some("id"), Some("Error message"))
     val gqlConnectionErrorJson = gqlConnectionError.asJson
-    gqlConnectionErrorJson.noSpaces should be("""{"id":"id","payload":"Error message","type":"error"}""")
+    gqlConnectionErrorJson.noSpaces should be(
+      """{"id":"id","payload":"Error message","type":"error"}"""
+    )
   }
 
   "A GqlData" should "be encodable to JSON" in {
@@ -74,7 +76,7 @@ class OperationMessageMarshallingTest extends FlatSpec with Matchers {
   }
 
   "A GqlError" should "be encodable to JSON" in {
-    val gqlError  = GqlError(Some("id"), Some("Error message"))
+    val gqlError     = GqlError(Some("id"), Some("Error message"))
     val gqlErrorJson = gqlError.asJson
     gqlErrorJson.noSpaces should be("""{"id":"id","payload":"Error message","type":"error"}""")
   }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package default
+package net.sigmalab
 
 package object artemis {
 

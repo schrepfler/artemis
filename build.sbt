@@ -50,7 +50,7 @@ lazy val settings =
 
 lazy val commonSettings =
   Seq(
-    scalaVersion := "2.12.6",
+    scalaVersion := "2.12.8",
     organization := "default",
     organizationName := "Sigmalab",
     startYear := Some(2017),
@@ -75,5 +75,17 @@ lazy val scalafmtSettings =
   Seq(
     scalafmtOnCompile := true,
     scalafmtOnCompile.in(Sbt) := false,
-    scalafmtVersion := "1.2.0"
+    scalafmtVersion := "2.0.0-RC1"
   )
+
+lazy val `artemis` = (project in file("."))
+
+lazy val `artemis-protocol` = (project in file("./artemis-protocol"))
+  .settings(
+    libraryDependencies ++= Seq(
+      lagomJavadslApi,
+      lagomJavadslKafkaBroker,
+      lombok
+    )
+  )
+  .settings(javaCompileSettings: _*)
