@@ -89,3 +89,23 @@ lazy val `artemis-protocol` = (project in file("./artemis-protocol"))
     )
   )
   .settings(javaCompileSettings: _*)
+
+lazy val `artemis-client` = (project in file("./artemis-client"))
+.settings(
+  libraryDependencies ++= Seq(
+    lagomJavadslApi,
+    lagomJavadslKafkaBroker,
+    lombok
+  )
+)
+.settings(javaCompileSettings: _*)
+
+lazy val `artemis-server` = (project in file("./artemis-server"))
+.settings(
+  libraryDependencies ++= Seq(
+    lagomJavadslApi,
+    lagomJavadslKafkaBroker,
+    lombok
+  )
+)
+.settings(javaCompileSettings: _*)
