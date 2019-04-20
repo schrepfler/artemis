@@ -10,7 +10,10 @@ import akka.stream.scaladsl.GraphDSL.Implicits._
 import akka.stream.scaladsl.{Flow, GraphDSL, Keep, Sink, Source}
 import akka.stream.{ActorMaterializer, FlowShape, OverflowStrategy}
 import akka.{Done, NotUsed}
-import io.ticofab.example.Route.GetWebsocketFlow
+import io.circe.JsonObject
+import io.circe.syntax._
+import net.sigmalab.artemis.codecs.circe.JsonCodecs._
+import net.sigmalab.artemis.Route.GetWebsocketFlow
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

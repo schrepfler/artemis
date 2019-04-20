@@ -2,22 +2,51 @@
 // Projects
 // *****************************************************************************
 
-lazy val artemis =
-  project
-    .in(file("."))
-    .enablePlugins(AutomateHeaderPlugin, GitVersioning)
-    .settings(settings)
-    .settings(
-      libraryDependencies ++= Seq(
-        library.circeParser,
-        library.circeGeneric,
-        library.circeGenericExtras,
-        library.circeLiteral,
-        library.circeTesting % Test,
-        library.scalaCheck % Test,
-        library.scalaTest  % Test
-      )
+lazy val artemis = (project in file("."))
+  .aggregate(`artemis-protocol`)
+  .aggregate(`artemis-client`)
+  .aggregate(`artemis-server`, `artemis-protocol`)
+  .aggregate(`integration-tests`)
+  .enablePlugins(AutomateHeaderPlugin, GitVersioning)
+  .settings(settings)
+
+lazy val `artemis-protocol` = (project in file("./artemis-protocol"))
+  .settings(
+    libraryDependencies ++= Seq(
+      library.circeParser,
+      library.circeGeneric,
+      library.circeGenericExtras,
+      library.circeLiteral,
+      library.circeTesting % Test,
+      library.scalaCheck % Test,
+      library.scalaTest  % Test
     )
+  )
+  .settings(javaCompileSettings: _*)
+
+lazy val `artemis-client` = (project in file("./artemis-client"))
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.typesafe.akka" %% "akka-http"   % "10.1.8",
+      "com.typesafe.akka" %% "akka-stream" % "2.5.22"
+    )
+  )
+  .dependsOn(`artemis-protocol`)
+  .settings(javaCompileSettings: _*)
+
+lazy val `artemis-server` = (project in file("./artemis-server"))
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.typesafe.akka" %% "akka-http"   % "10.1.8",
+      "com.typesafe.akka" %% "akka-stream" % "2.5.22"
+    )
+  )
+  .dependsOn(`artemis-protocol`)
+  .settings(javaCompileSettings: _*)
+
+lazy val `integration-tests` = (project in file("./integration-tests"))
+  .settings()
+
 
 // *****************************************************************************
 // Library dependencies
@@ -51,10 +80,11 @@ lazy val settings =
 lazy val commonSettings =
   Seq(
     scalaVersion := "2.12.8",
-    organization := "default",
+    organization := "net.sigmalab.artemis",
     organizationName := "Sigmalab",
-    startYear := Some(2017),
-    licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
+    homepage := Some(url("https://github.com/schrepfler/artemis/")),
+    startYear := Some(2019),
+    licenses += "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"),
     scalacOptions ++= Seq(
       "-unchecked",
       "-deprecation",
@@ -63,7 +93,8 @@ lazy val commonSettings =
       "-encoding", "UTF-8"
     ),
     unmanagedSourceDirectories.in(Compile) := Seq(scalaSource.in(Compile).value),
-    unmanagedSourceDirectories.in(Test) := Seq(scalaSource.in(Test).value)
+    unmanagedSourceDirectories.in(Test) := Seq(scalaSource.in(Test).value),
+    version in ThisBuild := "1.0-SNAPSHOT"
 )
 
 lazy val gitSettings =
@@ -78,34 +109,12 @@ lazy val scalafmtSettings =
     scalafmtVersion := "2.0.0-RC1"
   )
 
-lazy val `artemis` = (project in file("."))
-
-lazy val `artemis-protocol` = (project in file("./artemis-protocol"))
-  .settings(
-    libraryDependencies ++= Seq(
-      lagomJavadslApi,
-      lagomJavadslKafkaBroker,
-      lombok
-    )
-  )
-  .settings(javaCompileSettings: _*)
-
-lazy val `artemis-client` = (project in file("./artemis-client"))
-.settings(
-  libraryDependencies ++= Seq(
-    lagomJavadslApi,
-    lagomJavadslKafkaBroker,
-    lombok
+lazy val javaCompileSettings = Seq(
+  javacOptions in Compile ++= Seq(
+    "-encoding", "UTF-8",
+    "-source", "1.8",
+    "-target", "1.8",
+    "-Xlint:all",
+    "-parameters" // See https://github.com/FasterXML/jackson-module-parameter-names
   )
 )
-.settings(javaCompileSettings: _*)
-
-lazy val `artemis-server` = (project in file("./artemis-server"))
-.settings(
-  libraryDependencies ++= Seq(
-    lagomJavadslApi,
-    lagomJavadslKafkaBroker,
-    lombok
-  )
-)
-.settings(javaCompileSettings: _*)
