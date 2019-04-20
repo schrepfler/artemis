@@ -1,35 +1,20 @@
 package net.sigmalab.artemis
 
-import akka.actor.{Actor, ActorSystem, Props}
+import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.model.ws.{BinaryMessage, Message, TextMessage, WebSocketRequest}
-import akka.http.scaladsl.server.Directives.{path, _}
-import akka.pattern.ask
-import akka.stream.scaladsl.GraphDSL.Implicits._
-import akka.stream.scaladsl.{Flow, GraphDSL, Keep, Sink, Source}
-import akka.stream.{ActorMaterializer, FlowShape, OverflowStrategy}
+import akka.http.scaladsl.model.ws.{Message, TextMessage, WebSocketRequest}
+import akka.stream.ActorMaterializer
+import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
 import akka.{Done, NotUsed}
-import io.circe.JsonObject
-import io.circe.syntax._
-import net.sigmalab.artemis.codecs.circe.JsonCodecs._
-import net.sigmalab.artemis.Route.GetWebsocketFlow
+//import net.sigmalab.artemis.Route.GetWebsocketFlow
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.concurrent.duration._
-import scala.util.{Failure, Success}
 
 object ArtemisClient extends App {
   implicit val as = ActorSystem("example")
   implicit val am = ActorMaterializer()
-
-//  Http()
-//    .bindAndHandle(Route.websocketRoute, "0.0.0.0", 8123)
-//    .onComplete {
-//      case Success(value) => println(value)
-//      case Failure(err) => println(err)
-//    }
 
   // test client
   // print each incoming strict text message

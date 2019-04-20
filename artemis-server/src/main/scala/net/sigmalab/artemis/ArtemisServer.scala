@@ -20,50 +20,16 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-object AkkaHttpWSExampleApp extends App {
-  implicit val as = ActorSystem("example")
+object ArtemisServer extends App {
+  implicit val as = ActorSystem("artemis-server")
   implicit val am = ActorMaterializer()
 
   Http()
     .bindAndHandle(Route.websocketRoute, "0.0.0.0", 8123)
     .onComplete {
-      case Success(value) => println(value)
-      case Failure(err) => println(err)
+      case Success(value) => println("Artemis listening.")
+      case Failure(err) => println(s"Artemis failed to bind to interface. ${err.getMessage}")
     }
-
-  // test client
-  // print each incoming strict text message
-  val printSink: Sink[Message, Future[Done]] =
-  Sink.foreach { case message: TextMessage.Strict => println("client received: " + message.text) }
-
-  val helloSource: Source[Message, NotUsed] = Source.single(TextMessage("hello world!"))
-
-  // the Future[Done] is the materialized value of Sink.foreach
-  // and it is completed when the stream completes
-  val flow: Flow[Message, Message, Future[Done]] =
-  Flow.fromSinkAndSourceMat(printSink, helloSource)(Keep.left)
-
-  // upgradeResponse is a Future[WebSocketUpgradeResponse] that
-  // completes or fails when the connection succeeds or fails
-  // and closed is a Future[Done] representing the stream completion from above
-  val (upgradeResponse, closed) =
-  Http().singleWebSocketRequest(WebSocketRequest("ws://localhost:8123/connect"), flow)
-
-  val connected = upgradeResponse.map { upgrade =>
-    // just like a regular http request we can access response status which is available via upgrade.response.status
-    // status code 101 (Switching Protocols) indicates that server support WebSockets
-    if (upgrade.response.status == StatusCodes.SwitchingProtocols) {
-      println("switching protocols")
-      Done
-    } else {
-      throw new RuntimeException(s"Connection failed: ${upgrade.response.status}")
-    }
-  }
-
-  // in a real application you would not side effect here
-  // and handle errors more carefully
-  connected.onComplete(println)
-  closed.foreach(_ => println("closed"))
 
 }
 
@@ -71,7 +37,7 @@ object Route {
 
   case object GetWebsocketFlow
 
-  implicit val as = ActorSystem("example")
+  implicit val as = ActorSystem("client-handler")
   implicit val am = ActorMaterializer()
 
   val websocketRoute =
@@ -132,12 +98,12 @@ class ClientHandlerActor extends Actor {
 
     // replies with "hello XXX"
     case s: String =>
-      println(s"client actor received $s")
+      println(s"handler actor received $s")
       down ! "Hello " + s + "!"
 
     // passes any int down the websocket
     case n: Int =>
-      println(s"client actor received $n")
+      println(s"handler actor received $n")
       down ! n.toString
   }
 }
