@@ -7,8 +7,9 @@ import akka.http.scaladsl.model.ws.{Message, TextMessage, WebSocketRequest}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
 import akka.{Done, NotUsed}
-//import net.sigmalab.artemis.Route.GetWebsocketFlow
-
+import io.circe.{Encoder, Json, JsonObject}
+import io.circe.syntax._
+import net.sigmalab.artemis.codecs.circe.JsonCodecs._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -21,7 +22,10 @@ object ArtemisClient extends App {
   val printSink: Sink[Message, Future[Done]] =
   Sink.foreach { case message: TextMessage.Strict => println("client received: " + message.text) }
 
-  val helloSource: Source[Message, NotUsed] = Source.single(TextMessage("hello world!"))
+  val gci: GqlConnectionInit = GqlConnectionInit()
+
+  val msg = gci.asJson.noSpaces
+  val helloSource: Source[Message, NotUsed] = Source.single(TextMessage(msg))
 
   // the Future[Done] is the materialized value of Sink.foreach
   // and it is completed when the stream completes
@@ -51,78 +55,3 @@ object ArtemisClient extends App {
   closed.foreach(_ => println("closed"))
 
 }
-
-//object Route {
-//
-//  case object GetWebsocketFlow
-//
-//  implicit val as = ActorSystem("example")
-//  implicit val am = ActorMaterializer()
-//
-//  val websocketRoute =
-//    pathEndOrSingleSlash {
-//      complete("WS server is alive\n")
-//    } ~ path("connect") {
-//
-//      val handler = as.actorOf(Props[ClientHandlerActor])
-//      val futureFlow = (handler ? GetWebsocketFlow) (3.seconds).mapTo[Flow[Message, Message, _]]
-//
-//      onComplete(futureFlow) {
-//        case Success(flow) => handleWebSocketMessages(flow)
-//        case Failure(err) => complete(err.toString)
-//      }
-//
-//    }
-//}
-
-//class ClientHandlerActor extends Actor {
-//
-//  implicit val as = context.system
-//  implicit val am = ActorMaterializer()
-//
-//  val (down, publisher) = Source
-//    .actorRef[String](1000, OverflowStrategy.fail)
-//    .toMat(Sink.asPublisher(fanout = false))(Keep.both)
-//    .run()
-//
-//  // test
-//  var counter = 0
-//  as.scheduler.schedule(0.seconds, 0.5.second, new Runnable {
-//    override def run() = {
-//      counter = counter + 1
-//      self ! counter
-//    }
-//  })
-//
-//  override def receive = {
-//    case GetWebsocketFlow =>
-//
-//      val flow = Flow.fromGraph(GraphDSL.create() { implicit b =>
-//        val textMsgFlow = b.add(Flow[Message]
-//          .mapAsync(1) {
-//            case tm: TextMessage => tm.toStrict(3.seconds).map(_.text)
-//            case bm: BinaryMessage =>
-//              // consume the stream
-//              bm.dataStream.runWith(Sink.ignore)
-//              Future.failed(new Exception("yuck"))
-//          })
-//
-//        val pubSrc = b.add(Source.fromPublisher(publisher).map(TextMessage(_)))
-//
-//        textMsgFlow ~> Sink.foreach[String](self ! _)
-//        FlowShape(textMsgFlow.in, pubSrc.out)
-//      })
-//
-//      sender ! flow
-//
-//    // replies with "hello XXX"
-//    case s: String =>
-//      println(s"client actor received $s")
-//      down ! "Hello " + s + "!"
-//
-//    // passes any int down the websocket
-//    case n: Int =>
-//      println(s"client actor received $n")
-//      down ! n.toString
-//  }
-//}

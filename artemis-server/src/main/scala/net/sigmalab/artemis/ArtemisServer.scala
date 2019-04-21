@@ -10,7 +10,7 @@ import akka.stream.scaladsl.GraphDSL.Implicits._
 import akka.stream.scaladsl.{Flow, GraphDSL, Keep, Sink, Source}
 import akka.stream.{ActorMaterializer, FlowShape, OverflowStrategy}
 import akka.{Done, NotUsed}
-import io.circe.JsonObject
+import io.circe.{Encoder, Json, JsonObject}
 import io.circe.syntax._
 import net.sigmalab.artemis.codecs.circe.JsonCodecs._
 import net.sigmalab.artemis.Route.GetWebsocketFlow
@@ -61,6 +61,7 @@ class ClientHandlerActor extends Actor {
   implicit val as = context.system
   implicit val am = ActorMaterializer()
 
+
   val (down, publisher) = Source
     .actorRef[String](1000, OverflowStrategy.fail)
     .toMat(Sink.asPublisher(fanout = false))(Keep.both)
@@ -96,14 +97,39 @@ class ClientHandlerActor extends Actor {
 
       sender ! flow
 
+    case msg: GqlConnectionInit => {
+      println(s"GqlConnectionInit received: ${msg}")
+      down ! GqlConnectionAck
+    }
+
+    case msg: GqlConnectionTerminate => {
+      println("need to close socket now")
+    }
+
+    case msg: GqlStart => {
+      println("need to start gql now")
+    }
+
+    case msg: GqlStop => {
+      println("need to stop gql now")
+    }
+
     // replies with "hello XXX"
-    case s: String =>
+    case s: String => {
       println(s"handler actor received $s")
       down ! "Hello " + s + "!"
+    }
 
     // passes any int down the websocket
-    case n: Int =>
-      println(s"handler actor received $n")
-      down ! n.toString
+    case n: Int => {
+      down ! GqlKeepAlive().asJson.noSpaces
+    }
+
+    case _ => {
+      println("Unsupported message type.")
+      down ! GqlError(Some(""), Some("Error!"))
+    }
+
+
   }
 }
