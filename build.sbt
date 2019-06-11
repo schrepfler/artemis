@@ -56,7 +56,7 @@ lazy val library =
   new {
     object Version {
       val scalaCheck = "1.14.0"
-      val scalaTest  = "3.0.7"
+      val scalaTest  = "3.0.8"
       val circe = "0.11.1"
     }
     val scalaCheck = "org.scalacheck" %% "scalacheck" % Version.scalaCheck
