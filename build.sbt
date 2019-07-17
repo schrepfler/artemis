@@ -27,7 +27,7 @@ lazy val `artemis-protocol` = (project in file("./artemis-protocol"))
 lazy val `artemis-client` = (project in file("./artemis-client"))
   .settings(
     libraryDependencies ++= Seq(
-      "com.typesafe.akka" %% "akka-http"   % "10.1.8",
+      "com.typesafe.akka" %% "akka-http"   % "10.1.9",
       "com.typesafe.akka" %% "akka-stream" % "2.5.23"
     )
   )
@@ -37,7 +37,7 @@ lazy val `artemis-client` = (project in file("./artemis-client"))
 lazy val `artemis-server` = (project in file("./artemis-server"))
   .settings(
     libraryDependencies ++= Seq(
-      "com.typesafe.akka" %% "akka-http"   % "10.1.8",
+      "com.typesafe.akka" %% "akka-http"   % "10.1.9",
       "com.typesafe.akka" %% "akka-stream" % "2.5.23"
     )
   )
