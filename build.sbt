@@ -1,42 +1,34 @@
 // *****************************************************************************
-// Projects
-// *****************************************************************************
-
-lazy val artemis =
-  project
-    .in(file("."))
-    .enablePlugins(AutomateHeaderPlugin, GitVersioning)
-    .settings(settings)
-    .settings(
-      libraryDependencies ++= Seq(
-        library.circeParser,
-        library.circeGeneric,
-        library.circeGenericExtras,
-        library.circeLiteral,
-        library.circeTesting % Test,
-        library.scalaCheck % Test,
-        library.scalaTest  % Test
-      )
-    )
-
-// *****************************************************************************
 // Library dependencies
 // *****************************************************************************
 
 lazy val library =
   new {
+
     object Version {
       val scalaCheck = "1.14.0"
-      val scalaTest  = "3.0.7"
+      val scalaTest = "3.0.7"
       val circe = "0.11.1"
+      val testContainers = "1.11.3"
+      val testContainersScala = "0.25.0"
+      val cornichon = "0.17.2-SNAPSHOT"
     }
-    val scalaCheck = "org.scalacheck" %% "scalacheck" % Version.scalaCheck
-    val scalaTest  = "org.scalatest"  %% "scalatest"  % Version.scalaTest
-    val circeParser = "io.circe" %% "circe-parser" % Version.circe
-    val circeGeneric = "io.circe" %% "circe-generic" % Version.circe
-    val circeLiteral = "io.circe" %% "circe-literal" % Version.circe
-    val circeTesting = "io.circe" %% "circe-testing" % Version.circe
-    val circeGenericExtras = "io.circe" %% "circe-generic-extras" % Version.circe
+
+    val scalaCheck = "org.scalacheck"                   %% "scalacheck"           % Version.scalaCheck
+    val scalaTest = "org.scalatest"                     %% "scalatest"            % Version.scalaTest
+    val circeParser = "io.circe"                        %% "circe-parser"         % Version.circe
+    val circeGeneric = "io.circe"                       %% "circe-generic"        % Version.circe
+    val circeLiteral = "io.circe"                       %% "circe-literal"        % Version.circe
+    val circeTesting = "io.circe"                       %% "circe-testing"        % Version.circe
+    val circeGenericExtras = "io.circe"                 %% "circe-generic-extras" % Version.circe
+    val testContainersScala = "com.dimafeng"            %% "testcontainers-scala" % Version.testContainersScala
+    val testContainersKafka = "org.testcontainers"      % "kafka"                 % Version.testContainers
+    val testContainersCassandra = "org.testcontainers"  % "cassandra"             % Version.testContainers
+    val testContainersPostgreSQL = "org.testcontainers" % "postgresql"            % Version.testContainers
+    val cornichonKafka = "com.github.agourlay"          %% "cornichon-kafka"      % Version.cornichon
+    val cornichonCheck = "com.github.agourlay"          %% "cornichon-check"      % Version.cornichon
+    val cornichonScalaTest = "com.github.agourlay"      %% "cornichon-scalatest"  % Version.cornichon
+    val cornichonHttpMock = "com.github.agourlay"       %% "cornichon-http-mock"  % Version.cornichon
   }
 
 // *****************************************************************************
@@ -44,9 +36,10 @@ lazy val library =
 // *****************************************************************************
 
 lazy val settings =
-  commonSettings ++
-  gitSettings ++
-  scalafmtSettings
+commonSettings ++
+gitSettings ++
+scalafmtSettings ++
+publishSettings
 
 lazy val commonSettings =
   Seq(
@@ -60,11 +53,12 @@ lazy val commonSettings =
       "-deprecation",
       "-language:_",
       "-target:jvm-1.8",
-      "-encoding", "UTF-8"
+      "-encoding",
+      "UTF-8"
     ),
-    unmanagedSourceDirectories.in(Compile) := Seq(scalaSource.in(Compile).value),
-    unmanagedSourceDirectories.in(Test) := Seq(scalaSource.in(Test).value)
-)
+    Compile / unmanagedSourceDirectories := Seq((Compile / scalaSource).value),
+    Test / unmanagedSourceDirectories := Seq((Test / scalaSource).value)
+  )
 
 lazy val gitSettings =
   Seq(
@@ -73,39 +67,53 @@ lazy val gitSettings =
 
 lazy val scalafmtSettings =
   Seq(
-    scalafmtOnCompile := true,
-    scalafmtOnCompile.in(Sbt) := false,
-    scalafmtVersion := "2.0.0-RC1"
+    scalafmtOnCompile := true
   )
 
+lazy val publishSettings =
+  Seq(
+    pomIncludeRepository := (_ => false)
+  )
+
+// *****************************************************************************
+// Projects
+// *****************************************************************************
+
 lazy val `artemis` = (project in file("."))
+  .enablePlugins(AutomateHeaderPlugin, GitVersioning)
+  .settings(settings)
 
 lazy val `artemis-protocol` = (project in file("./artemis-protocol"))
   .settings(
     libraryDependencies ++= Seq(
-      lagomJavadslApi,
-      lagomJavadslKafkaBroker,
-      lombok
+      library.circeParser,
+      library.circeGeneric,
+      library.circeGenericExtras,
+      library.circeLiteral,
+      library.circeTesting % Test,
+      library.scalaCheck   % Test,
+      library.scalaTest    % Test
     )
   )
-  .settings(javaCompileSettings: _*)
+  .settings(settings)
 
 lazy val `artemis-client` = (project in file("./artemis-client"))
-.settings(
-  libraryDependencies ++= Seq(
-    lagomJavadslApi,
-    lagomJavadslKafkaBroker,
-    lombok
+  .settings(
+    libraryDependencies ++= Seq(
+      )
   )
-)
-.settings(javaCompileSettings: _*)
+  .settings(settings)
 
 lazy val `artemis-server` = (project in file("./artemis-server"))
-.settings(
-  libraryDependencies ++= Seq(
-    lagomJavadslApi,
-    lagomJavadslKafkaBroker,
-    lombok
+  .settings(
+    libraryDependencies ++= Seq(
+      )
   )
-)
-.settings(javaCompileSettings: _*)
+  .settings(settings)
+
+lazy val `integration-tests` = (project in file("./integration-tests"))
+  .settings(
+    libraryDependencies ++= Seq(
+      )
+  )
+  .settings(settings)
