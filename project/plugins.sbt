@@ -4,4 +4,4 @@ addSbtPlugin("de.heikoseeberger"   % "sbt-header"       % "5.2.0")
 addSbtPlugin("com.lightbend.lagom" % "lagom-sbt-plugin" % "1.5.1")
 addSbtPlugin("com.timushev.sbt"    % "sbt-updates"      % "0.4.1")
 
-libraryDependencies += "org.slf4j" % "slf4j-nop" % "1.7.26" // Needed by sbt-git
+libraryDependencies += "org.slf4j" % "slf4j-nop" % "1.7.28" // Needed by sbt-git
