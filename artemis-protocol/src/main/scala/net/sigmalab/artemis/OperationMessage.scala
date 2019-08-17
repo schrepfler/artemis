@@ -28,7 +28,7 @@ sealed trait OperationMessage[T] {
 }
 
 // Client messages
-final case class GqlConnectionInit(withPayload: Some[JsonObject]) extends OperationMessage[JsonObject] {
+final case class GqlConnectionInit(withPayload: Some[JsonObject] = Some(JsonObject.empty)) extends OperationMessage[JsonObject] {
 
   override def id: Option[String]          = None
   override def payload: Option[JsonObject] = withPayload

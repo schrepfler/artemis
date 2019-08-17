@@ -7,7 +7,7 @@ lazy val library =
 
     object Version {
       val scalaCheck = "1.14.0"
-      val scalaTest = "3.0.7"
+      val scalaTest = "3.0.8"
       val circe = "0.11.1"
       val testContainers = "1.11.3"
       val testContainersScala = "0.25.0"
@@ -44,10 +44,11 @@ publishSettings
 lazy val commonSettings =
   Seq(
     scalaVersion := "2.12.8",
-    organization := "default",
+    organization := "net.sigmalab.artemis",
     organizationName := "Sigmalab",
-    startYear := Some(2017),
-    licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
+    homepage := Some(url("https://github.com/schrepfler/artemis/")),
+    startYear := Some(2019),
+    licenses += "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"),
     scalacOptions ++= Seq(
       "-unchecked",
       "-deprecation",
@@ -57,7 +58,8 @@ lazy val commonSettings =
       "UTF-8"
     ),
     Compile / unmanagedSourceDirectories := Seq((Compile / scalaSource).value),
-    Test / unmanagedSourceDirectories := Seq((Test / scalaSource).value)
+    Test / unmanagedSourceDirectories := Seq((Test / scalaSource).value),
+    version in ThisBuild := "1.0-SNAPSHOT"
   )
 
 lazy val gitSettings =
@@ -80,6 +82,10 @@ lazy val publishSettings =
 // *****************************************************************************
 
 lazy val `artemis` = (project in file("."))
+  .aggregate(`artemis-protocol`)
+  .aggregate(`artemis-client`)
+  .aggregate(`artemis-server`, `artemis-protocol`)
+  .aggregate(`integration-tests`)
   .enablePlugins(AutomateHeaderPlugin, GitVersioning)
   .settings(settings)
 
@@ -100,20 +106,32 @@ lazy val `artemis-protocol` = (project in file("./artemis-protocol"))
 lazy val `artemis-client` = (project in file("./artemis-client"))
   .settings(
     libraryDependencies ++= Seq(
-      )
+      "com.typesafe.akka" %% "akka-http"   % "10.1.9",
+      "com.typesafe.akka" %% "akka-stream" % "2.5.23"
+    )
   )
-  .settings(settings)
+  .dependsOn(`artemis-protocol`)
+  .settings(javaCompileSettings: _*)
 
 lazy val `artemis-server` = (project in file("./artemis-server"))
   .settings(
     libraryDependencies ++= Seq(
-      )
+      "com.typesafe.akka" %% "akka-http"   % "10.1.9",
+      "com.typesafe.akka" %% "akka-stream" % "2.5.23"
+    )
   )
-  .settings(settings)
+  .dependsOn(`artemis-protocol`)
+  .settings(javaCompileSettings: _*)
 
 lazy val `integration-tests` = (project in file("./integration-tests"))
-  .settings(
-    libraryDependencies ++= Seq(
-      )
+  .settings()
+
+lazy val javaCompileSettings = Seq(
+  javacOptions in Compile ++= Seq(
+    "-encoding", "UTF-8",
+    "-source", "1.8",
+    "-target", "1.8",
+    "-Xlint:all",
+    "-parameters" // See https://github.com/FasterXML/jackson-module-parameter-names
   )
-  .settings(settings)
+)
