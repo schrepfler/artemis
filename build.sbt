@@ -36,10 +36,10 @@ lazy val library =
 // *****************************************************************************
 
 lazy val settings =
-commonSettings ++
-gitSettings ++
-scalafmtSettings ++
-publishSettings
+  commonSettings ++
+  gitSettings ++
+  scalafmtSettings ++
+  publishSettings
 
 lazy val commonSettings =
   Seq(
@@ -107,7 +107,7 @@ lazy val `artemis-client` = (project in file("./artemis-client"))
   .settings(
     libraryDependencies ++= Seq(
       "com.typesafe.akka" %% "akka-http"   % "10.1.9",
-      "com.typesafe.akka" %% "akka-stream" % "2.5.23"
+      "com.typesafe.akka" %% "akka-stream" % "2.5.25"
     )
   )
   .dependsOn(`artemis-protocol`)
@@ -117,7 +117,7 @@ lazy val `artemis-server` = (project in file("./artemis-server"))
   .settings(
     libraryDependencies ++= Seq(
       "com.typesafe.akka" %% "akka-http"   % "10.1.9",
-      "com.typesafe.akka" %% "akka-stream" % "2.5.23"
+      "com.typesafe.akka" %% "akka-stream" % "2.5.25"
     )
   )
   .dependsOn(`artemis-protocol`)
@@ -126,12 +126,13 @@ lazy val `artemis-server` = (project in file("./artemis-server"))
 lazy val `integration-tests` = (project in file("./integration-tests"))
   .settings()
 
-lazy val javaCompileSettings = Seq(
-  javacOptions in Compile ++= Seq(
-    "-encoding", "UTF-8",
-    "-source", "1.8",
-    "-target", "1.8",
-    "-Xlint:all",
-    "-parameters" // See https://github.com/FasterXML/jackson-module-parameter-names
+lazy val javaCompileSettings =
+  Seq(
+    javacOptions in Compile ++= Seq(
+      "-encoding", "UTF-8",
+      "-source", "1.8",
+      "-target", "1.8",
+      "-Xlint:all",
+      "-parameters" // See https://github.com/FasterXML/jackson-module-parameter-names
+    )
   )
-)
