@@ -22,7 +22,7 @@ lazy val `artemis-protocol` = (project in file("./artemis-protocol"))
       library.scalaTest  % Test
     )
   )
-  .settings(javaCompileSettings: _*)
+  .settings(settings)
 
 lazy val `artemis-client` = (project in file("./artemis-client"))
   .settings(
@@ -32,7 +32,7 @@ lazy val `artemis-client` = (project in file("./artemis-client"))
     )
   )
   .dependsOn(`artemis-protocol`)
-  .settings(javaCompileSettings: _*)
+  .settings(settings)
 
 lazy val `artemis-server` = (project in file("./artemis-server"))
   .settings(
@@ -42,10 +42,10 @@ lazy val `artemis-server` = (project in file("./artemis-server"))
     )
   )
   .dependsOn(`artemis-protocol`)
-  .settings(javaCompileSettings: _*)
+  .settings(settings)
 
 lazy val `integration-tests` = (project in file("./integration-tests"))
-  .settings()
+  .settings(settings)
 
 
 // *****************************************************************************
@@ -75,7 +75,8 @@ lazy val library =
 lazy val settings =
   commonSettings ++
   gitSettings ++
-  scalafmtSettings
+  scalafmtSettings ++
+  javaCompileSettings
 
 lazy val commonSettings =
   Seq(
@@ -104,17 +105,16 @@ lazy val gitSettings =
 
 lazy val scalafmtSettings =
   Seq(
-    scalafmtOnCompile := true,
-    scalafmtOnCompile.in(Sbt) := false,
-    scalafmtVersion := "2.0.0-RC1"
+    scalafmtOnCompile := true
   )
 
-lazy val javaCompileSettings = Seq(
-  javacOptions in Compile ++= Seq(
-    "-encoding", "UTF-8",
-    "-source", "1.8",
-    "-target", "1.8",
-    "-Xlint:all",
-    "-parameters" // See https://github.com/FasterXML/jackson-module-parameter-names
+lazy val javaCompileSettings =
+  Seq(
+    javacOptions in Compile ++= Seq(
+      "-encoding", "UTF-8",
+      "-source", "1.8",
+      "-target", "1.8",
+      "-Xlint:all",
+      "-parameters" // See https://github.com/FasterXML/jackson-module-parameter-names
+    )
   )
-)

@@ -1,34 +1,36 @@
 package net.sigmalab.artemis
 
-import akka.actor.{Actor, ActorSystem, Props}
+import akka.actor.{ Actor, ActorSystem, Props }
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.model.ws.{BinaryMessage, Message, TextMessage, WebSocketRequest}
-import akka.http.scaladsl.server.Directives.{path, _}
+import akka.http.scaladsl.model.ws.{ BinaryMessage, Message, TextMessage, WebSocketRequest }
+import akka.http.scaladsl.server.Directives.{ path, _ }
 import akka.pattern.ask
 import akka.stream.scaladsl.GraphDSL.Implicits._
-import akka.stream.scaladsl.{Flow, GraphDSL, Keep, Sink, Source}
-import akka.stream.{ActorMaterializer, FlowShape, OverflowStrategy}
-import akka.{Done, NotUsed}
-import io.circe.{Encoder, Json, JsonObject}
+import akka.stream.scaladsl.{ Flow, GraphDSL, Keep, Sink, Source }
+import akka.stream.{ ActorMaterializer, FlowShape, OverflowStrategy }
+import akka.{ Done, NotUsed }
+import io.circe.{ Encoder, Json, JsonObject }
 import io.circe.syntax._
 import net.sigmalab.artemis.codecs.circe.JsonCodecs._
-import net.sigmalab.artemis.Route.GetWebsocketFlow
+import net.sigmalab.artemis.Route.{ GetWebsocketFlow, graphqlRoute, websocketRoute }
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.util.{Failure, Success}
+import scala.util.{ Failure, Success }
 
 object ArtemisServer extends App {
   implicit val as = ActorSystem("artemis-server")
   implicit val am = ActorMaterializer()
 
+  val httpPort = 4000
+
   Http()
-    .bindAndHandle(Route.websocketRoute, "0.0.0.0", 8123)
+    .bindAndHandle(websocketRoute ~ graphqlRoute, "0.0.0.0", httpPort)
     .onComplete {
-      case Success(value) => println("Artemis listening.")
-      case Failure(err) => println(s"Artemis failed to bind to interface. ${err.getMessage}")
+      case Success(value) => println(s"Artemis listening to port ${httpPort}.")
+      case Failure(err)   => println(s"Artemis failed to bind port ${httpPort} to interface. ${err.getMessage}")
     }
 
 }
@@ -41,26 +43,38 @@ object Route {
   implicit val am = ActorMaterializer()
 
   val websocketRoute =
-    pathEndOrSingleSlash {
-      complete("WS server is alive\n")
-    } ~ path("connect") {
+  pathEndOrSingleSlash {
+    complete("WS server is alive\n")
+  } ~ path("connect") {
 
-      val handler = as.actorOf(Props[ClientHandlerActor])
-      val futureFlow = (handler ? GetWebsocketFlow) (3.seconds).mapTo[Flow[Message, Message, _]]
+    val handler    = as.actorOf(Props[ClientHandlerActor])
+    val futureFlow = (handler ? GetWebsocketFlow)(3.seconds).mapTo[Flow[Message, Message, _]]
 
-      onComplete(futureFlow) {
-        case Success(flow) => handleWebSocketMessages(flow)
-        case Failure(err) => complete(err.toString)
-      }
-
+    onComplete(futureFlow) {
+      case Success(flow) => handleWebSocketMessages(flow)
+      case Failure(err)  => complete(err.toString)
     }
+  }
+
+  val graphqlRoute = pathEndOrSingleSlash {
+    complete("WS server is alive\n")
+  } ~ path("graphql") {
+
+    val handler    = as.actorOf(Props[ClientHandlerActor])
+    val futureFlow = (handler ? GetWebsocketFlow)(3.seconds).mapTo[Flow[Message, Message, _]]
+
+    onComplete(futureFlow) {
+      case Success(flow) => handleWebSocketMessages(flow)
+      case Failure(err)  => complete(err.toString)
+    }
+  }
+
 }
 
 class ClientHandlerActor extends Actor {
 
   implicit val as = context.system
   implicit val am = ActorMaterializer()
-
 
   val (down, publisher) = Source
     .actorRef[String](1000, OverflowStrategy.fail)
@@ -78,16 +92,17 @@ class ClientHandlerActor extends Actor {
 
   override def receive = {
     case GetWebsocketFlow =>
-
       val flow = Flow.fromGraph(GraphDSL.create() { implicit b =>
-        val textMsgFlow = b.add(Flow[Message]
-          .mapAsync(1) {
-            case tm: TextMessage => tm.toStrict(3.seconds).map(_.text)
-            case bm: BinaryMessage =>
-              // consume the stream
-              bm.dataStream.runWith(Sink.ignore)
-              Future.failed(new Exception("yuck"))
-          })
+        val textMsgFlow = b.add(
+          Flow[Message]
+            .mapAsync(1) {
+              case tm: TextMessage   => tm.toStrict(3.seconds).map(_.text)
+              case bm: BinaryMessage =>
+                // consume the stream
+                bm.dataStream.runWith(Sink.ignore)
+                Future.failed(new Exception("yuck"))
+            }
+        )
 
         val pubSrc = b.add(Source.fromPublisher(publisher).map(TextMessage(_)))
 
@@ -129,7 +144,6 @@ class ClientHandlerActor extends Actor {
       println("Unsupported message type.")
       down ! GqlError(Some(""), Some("Error!"))
     }
-
 
   }
 }
