@@ -10,7 +10,7 @@ matrix:
 #       scala: 2.11.12
 #       env: COMMAND=test
     # Scala 2.12 — JVM — all tests
-    - jdk: oraclejdk8
+      jdk: openjdk10
       scala: 2.12.10
       env: COMMAND=test
 
