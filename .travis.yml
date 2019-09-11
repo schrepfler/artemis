@@ -11,7 +11,7 @@ matrix:
 #       env: COMMAND=test
     # Scala 2.12 — JVM — all tests
     - jdk: oraclejdk8
-      scala: 2.12.6
+      scala: 2.12.10
       env: COMMAND=test
 
 env:
