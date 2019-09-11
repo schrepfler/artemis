@@ -43,31 +43,31 @@ object Route {
   implicit val am = ActorMaterializer()
 
   val websocketRoute =
-  pathEndOrSingleSlash {
-    complete("WS server is alive\n")
-  } ~ path("connect") {
+    pathEndOrSingleSlash {
+      complete("WS server is alive\n")
+    } ~ path("connect") {
 
-    val handler    = as.actorOf(Props[ClientHandlerActor])
-    val futureFlow = (handler ? GetWebsocketFlow)(3.seconds).mapTo[Flow[Message, Message, _]]
+          val handler = as.actorOf(Props[ClientHandlerActor])
+          val futureFlow = (handler ? GetWebsocketFlow)(3.seconds).mapTo[Flow[Message, Message, _]]
 
-    onComplete(futureFlow) {
-      case Success(flow) => handleWebSocketMessages(flow)
-      case Failure(err)  => complete(err.toString)
-    }
-  }
+          onComplete(futureFlow) {
+            case Success(flow) => handleWebSocketMessages(flow)
+            case Failure(err)  => complete(err.toString)
+          }
+        }
 
   val graphqlRoute = pathEndOrSingleSlash {
-    complete("WS server is alive\n")
-  } ~ path("graphql") {
+      complete("WS server is alive\n")
+    } ~ path("graphql") {
 
-    val handler    = as.actorOf(Props[ClientHandlerActor])
-    val futureFlow = (handler ? GetWebsocketFlow)(3.seconds).mapTo[Flow[Message, Message, _]]
+          val handler = as.actorOf(Props[ClientHandlerActor])
+          val futureFlow = (handler ? GetWebsocketFlow)(3.seconds).mapTo[Flow[Message, Message, _]]
 
-    onComplete(futureFlow) {
-      case Success(flow) => handleWebSocketMessages(flow)
-      case Failure(err)  => complete(err.toString)
-    }
-  }
+          onComplete(futureFlow) {
+            case Success(flow) => handleWebSocketMessages(flow)
+            case Failure(err)  => complete(err.toString)
+          }
+        }
 
 }
 

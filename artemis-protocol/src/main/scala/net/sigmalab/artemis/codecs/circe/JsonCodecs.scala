@@ -79,17 +79,17 @@ object JsonCodecs extends AutoDerivation {
   } yield GqlStop(Some(_id))
 
   val decoderGqlError: Decoder[GqlError] = for {
-    _id      <- Decoder[String].prepare(_.downField("id"))
+    _id <- Decoder[String].prepare(_.downField("id"))
     _payload <- Decoder[String].prepare(_.downField("payload"))
   } yield GqlError(Some(_id), Some(_payload))
 
   val decoderGqlData: Decoder[GqlData] = for {
-    _id      <- Decoder[String].prepare(_.downField("id"))
+    _id <- Decoder[String].prepare(_.downField("id"))
     _payload <- Decoder[JsonObject].prepare(_.downField("payload"))
   } yield GqlData(Some(_id), Some(_payload))
 
   val decoderGqlStart: Decoder[GqlStart] = for {
-    _id      <- Decoder[String].prepare(_.downField("id"))
+    _id <- Decoder[String].prepare(_.downField("id"))
     _payload <- Decoder[JsonObject].prepare(_.downField("payload"))
   } yield GqlStart(Some(_id), Some(_payload))
 
@@ -103,20 +103,20 @@ object JsonCodecs extends AutoDerivation {
 
   private val operationMessageDecoders = Map(
     GQL_CONNECTION_KEEP_ALIVE -> decoderGqlKeepAlive,
-    GQL_CONNECTION_ACK        -> decoderGqlConnectionAck,
-    GQL_CONNECTION_TERMINATE  -> decoderGqlConnectionTerminate,
-    GQL_COMPLETE              -> decoderGqlComplete,
-    GQL_STOP                  -> decoderGqlStop,
-    GQL_ERROR                 -> decoderGqlError,
-    GQL_DATA                  -> decoderGqlData,
-    GQL_START                 -> decoderGqlStart,
-    GQL_CONNECTION_INIT       -> decoderGqlConnectionInit,
-    GQL_CONNECTION_ERROR      -> decoderGqlConnectionError
+    GQL_CONNECTION_ACK -> decoderGqlConnectionAck,
+    GQL_CONNECTION_TERMINATE -> decoderGqlConnectionTerminate,
+    GQL_COMPLETE -> decoderGqlComplete,
+    GQL_STOP -> decoderGqlStop,
+    GQL_ERROR -> decoderGqlError,
+    GQL_DATA -> decoderGqlData,
+    GQL_START -> decoderGqlStart,
+    GQL_CONNECTION_INIT -> decoderGqlConnectionInit,
+    GQL_CONNECTION_ERROR -> decoderGqlConnectionError
   )
 
   implicit val operationMessageDecoder: Decoder[OperationMessage[_]] = for {
     contextType <- Decoder[String].prepare(_.downField("type"))
-    value       <- operationMessageDecoders(contextType)
+    value <- operationMessageDecoders(contextType)
   } yield value
 
 }
