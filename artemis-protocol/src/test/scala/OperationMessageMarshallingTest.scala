@@ -25,66 +25,66 @@ import org.scalatest.{ FlatSpec, Matchers }
 class OperationMessageMarshallingTest extends FlatSpec with Matchers {
 
   "A connection_ack" should "be encodable to JSON" in {
-    val connection_ack = GqlConnectionAck()
-    val connection_ackJson = connection_ack.asJson
-    connection_ackJson.noSpaces should be("""{"type":"connection_ack"}""")
-  }
+      val connection_ack = GqlConnectionAck()
+      val connection_ackJson = connection_ack.asJson
+      connection_ackJson.noSpaces should be("""{"type":"connection_ack"}""")
+    }
 
   "A complete" should "be encodable to JSON" in {
-    val complete = GqlComplete(Some("completed-id"))
-    val completeJson = complete.asJson
-    completeJson.noSpaces should be("""{"id":"completed-id","type":"complete"}""")
-  }
+      val complete = GqlComplete(Some("completed-id"))
+      val completeJson = complete.asJson
+      completeJson.noSpaces should be("""{"id":"completed-id","type":"complete"}""")
+    }
 
   "A GqlConnectionInit" should "be encodable to JSON" in {
-    val gqlConnectionInit = GqlConnectionInit(Some(JsonObject.empty))
-    val gqlConnectionInitJson = gqlConnectionInit.asJson
+      val gqlConnectionInit = GqlConnectionInit(Some(JsonObject.empty))
+      val gqlConnectionInitJson = gqlConnectionInit.asJson
 
-    gqlConnectionInitJson.noSpaces should be("""{"payload":{},"type":"connection_init"}""")
-  }
+      gqlConnectionInitJson.noSpaces should be("""{"payload":{},"type":"connection_init"}""")
+    }
 
   "A GqlStart" should "be encodable to JSON" in {
-    val gqlStart = GqlStart(Some("id"), Some(JsonObject.empty))
-    val gqlStartJson = gqlStart.asJson
-    gqlStartJson.noSpaces should be("""{"id":"id","payload":{},"type":"start"}""")
-  }
+      val gqlStart = GqlStart(Some("id"), Some(JsonObject.empty))
+      val gqlStartJson = gqlStart.asJson
+      gqlStartJson.noSpaces should be("""{"id":"id","payload":{},"type":"start"}""")
+    }
 
   "A stop" should "be encodable to JSON" in {
-    val gqlStop = GqlStop(Some("stop-id"))
-    val gqlStopJson = gqlStop.asJson
-    gqlStopJson.noSpaces should be("""{"id":"stop-id","type":"stop"}""")
-  }
+      val gqlStop = GqlStop(Some("stop-id"))
+      val gqlStopJson = gqlStop.asJson
+      gqlStopJson.noSpaces should be("""{"id":"stop-id","type":"stop"}""")
+    }
 
   "A connection_terminate" should "be encodable to JSON" in {
-    val gqlConnectionTerminate = GqlConnectionTerminate()
-    val gqlConnectionTerminateJson = gqlConnectionTerminate.asJson
-    gqlConnectionTerminateJson.noSpaces should be("""{"type":"connection_terminate"}""")
-  }
+      val gqlConnectionTerminate = GqlConnectionTerminate()
+      val gqlConnectionTerminateJson = gqlConnectionTerminate.asJson
+      gqlConnectionTerminateJson.noSpaces should be("""{"type":"connection_terminate"}""")
+    }
 
   "A error" should "be encodable to JSON" in {
-    val gqlConnectionError = artemis.GqlError(Some("id"), Some("Error message"))
-    val gqlConnectionErrorJson = gqlConnectionError.asJson
-    gqlConnectionErrorJson.noSpaces should be(
-      """{"id":"id","payload":"Error message","type":"error"}"""
-    )
-  }
+      val gqlConnectionError = artemis.GqlError(Some("id"), Some("Error message"))
+      val gqlConnectionErrorJson = gqlConnectionError.asJson
+      gqlConnectionErrorJson.noSpaces should be(
+        """{"id":"id","payload":"Error message","type":"error"}"""
+      )
+    }
 
   "A GqlData" should "be encodable to JSON" in {
-    val gqlData = GqlData(Some("id"), Some(JsonObject.empty))
-    val gqlDataJson = gqlData.asJson
-    gqlDataJson.noSpaces should be("""{"id":"id","payload":{},"type":"data"}""")
-  }
+      val gqlData = GqlData(Some("id"), Some(JsonObject.empty))
+      val gqlDataJson = gqlData.asJson
+      gqlDataJson.noSpaces should be("""{"id":"id","payload":{},"type":"data"}""")
+    }
 
   "A GqlError" should "be encodable to JSON" in {
-    val gqlError = GqlError(Some("id"), Some("Error message"))
-    val gqlErrorJson = gqlError.asJson
-    gqlErrorJson.noSpaces should be("""{"id":"id","payload":"Error message","type":"error"}""")
-  }
+      val gqlError = GqlError(Some("id"), Some("Error message"))
+      val gqlErrorJson = gqlError.asJson
+      gqlErrorJson.noSpaces should be("""{"id":"id","payload":"Error message","type":"error"}""")
+    }
 
   "A GqlConnectionKeepAlive" should "be encodable to JSON" in {
-    val gqlConnectionKeepAlive = GqlKeepAlive()
-    val gqlConnectionKeepAliveJson = gqlConnectionKeepAlive.asJson
-    gqlConnectionKeepAliveJson.noSpaces should be("""{"type":"ka"}""")
-  }
+      val gqlConnectionKeepAlive = GqlKeepAlive()
+      val gqlConnectionKeepAliveJson = gqlConnectionKeepAlive.asJson
+      gqlConnectionKeepAliveJson.noSpaces should be("""{"type":"ka"}""")
+    }
 
 }
