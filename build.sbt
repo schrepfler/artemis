@@ -6,9 +6,9 @@ lazy val library =
   new {
 
     object Version {
-      val scalaCheck = "1.14.0"
-      val scalaTest = "3.0.8"
-      val circe = "0.12.0"
+      val scalaCheck = "1.14.3"
+      val scalaTest = "3.1.1"
+      val circe = "0.13.0"
       val testContainers = "1.11.3"
       val testContainersScala = "0.25.0"
       val cornichon = "0.17.2-SNAPSHOT"
@@ -43,7 +43,7 @@ lazy val settings =
 
 lazy val commonSettings =
   Seq(
-    scalaVersion := "2.12.10",
+    scalaVersion := "2.13.1",
     organization := "net.sigmalab.artemis",
     organizationName := "Sigmalab",
     homepage := Some(url("https://github.com/schrepfler/artemis/")),
@@ -106,8 +106,8 @@ lazy val `artemis-protocol` = (project in file("./artemis-protocol"))
 lazy val `artemis-client` = (project in file("./artemis-client"))
   .settings(
     libraryDependencies ++= Seq(
-      "com.typesafe.akka" %% "akka-http"   % "10.1.9",
-      "com.typesafe.akka" %% "akka-stream" % "2.5.25"
+      "com.typesafe.akka" %% "akka-http"   % "10.1.11",
+      "com.typesafe.akka" %% "akka-stream" % "2.6.4"
     )
   )
   .dependsOn(`artemis-protocol`)
@@ -117,8 +117,8 @@ lazy val `artemis-client` = (project in file("./artemis-client"))
 lazy val `artemis-server` = (project in file("./artemis-server"))
   .settings(
     libraryDependencies ++= Seq(
-      "com.typesafe.akka" %% "akka-http"   % "10.1.9",
-      "com.typesafe.akka" %% "akka-stream" % "2.5.25"
+      "com.typesafe.akka" %% "akka-http"   % "10.1.11",
+      "com.typesafe.akka" %% "akka-stream" % "2.6.4"
     )
   )
   .dependsOn(`artemis-protocol`)
