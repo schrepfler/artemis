@@ -26,8 +26,7 @@ object ArtemisServer extends App {
 
   val httpPort = 4000
 
-  Http()
-    .bindAndHandle(websocketRoute ~ graphqlRoute, "0.0.0.0", httpPort)
+  Http().newServerAt("0.0.0.0", httpPort).bind(websocketRoute ~ graphqlRoute)
     .onComplete {
       case Success(value) => println(s"Artemis listening to port ${httpPort}.")
       case Failure(err)   => println(s"Artemis failed to bind port ${httpPort} to interface. ${err.getMessage}")
@@ -83,12 +82,15 @@ class ClientHandlerActor extends Actor {
 
   // test
   var counter = 0
-  as.scheduler.schedule(0.seconds, 0.5.second, new Runnable {
-    override def run() = {
-      counter = counter + 1
-      self ! counter
-    }
-  })
+  as.scheduler.schedule(0.seconds,
+                        0.5.second,
+                        new Runnable {
+                          override def run() = {
+                            counter = counter + 1
+                            self ! counter
+                          }
+                        }
+  )
 
   override def receive = {
     case GetWebsocketFlow =>
@@ -112,38 +114,31 @@ class ClientHandlerActor extends Actor {
 
       sender ! flow
 
-    case msg: GqlConnectionInit => {
+    case msg: GqlConnectionInit =>
       println(s"GqlConnectionInit received: ${msg}")
       down ! GqlConnectionAck
-    }
 
-    case msg: GqlConnectionTerminate => {
+    case msg: GqlConnectionTerminate =>
       println("need to close socket now")
-    }
 
-    case msg: GqlStart => {
+    case msg: GqlStart =>
       println("need to start gql now")
-    }
 
-    case msg: GqlStop => {
+    case msg: GqlStop =>
       println("need to stop gql now")
-    }
 
     // replies with "hello XXX"
-    case s: String => {
+    case s: String =>
       println(s"handler actor received $s")
       down ! "Hello " + s + "!"
-    }
 
     // passes any int down the websocket
-    case n: Int => {
+    case n: Int =>
       down ! GqlKeepAlive().asJson.noSpaces
-    }
 
-    case _ => {
+    case _ =>
       println("Unsupported message type.")
       down ! GqlError(Some(""), Some("Error!"))
-    }
 
   }
 }

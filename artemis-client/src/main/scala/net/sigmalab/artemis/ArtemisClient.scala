@@ -44,9 +44,8 @@ object ArtemisClient extends App {
     if (upgrade.response.status == StatusCodes.SwitchingProtocols) {
       println("switching protocols")
       Done
-    } else {
+    } else
       throw new RuntimeException(s"Connection failed: ${upgrade.response.status}")
-    }
   }
 
   // in a real application you would not side effect here
