@@ -43,7 +43,7 @@ lazy val settings =
 
 lazy val commonSettings =
   Seq(
-    scalaVersion := "2.13.1",
+    scalaVersion := "2.13.5",
     organization := "net.sigmalab.artemis",
     organizationName := "Sigmalab",
     homepage := Some(url("https://github.com/schrepfler/artemis/")),
