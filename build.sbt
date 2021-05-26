@@ -8,7 +8,7 @@ lazy val library =
     object Version {
       val scalaCheck = "1.15.3"
       val scalaTest = "3.2.6"
-      val circe = "0.13.0"
+      val circe = "0.14.1"
       val testContainers = "1.11.3"
       val testContainersScala = "0.25.0"
       val cornichon = "0.17.2-SNAPSHOT"
