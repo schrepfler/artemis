@@ -6,7 +6,7 @@ lazy val library =
   new {
 
     object Version {
-      val scalaCheck = "1.15.3"
+      val scalaCheck = "1.15.4"
       val scalaTest = "3.2.6"
       val circe = "0.14.1"
       val testContainers = "1.11.3"
