@@ -6,9 +6,9 @@ lazy val library =
   new {
 
     object Version {
-      val scalaCheck = "1.15.3"
+      val scalaCheck = "1.15.4"
       val scalaTest = "3.2.9"
-      val circe = "0.13.0"
+      val circe = "0.14.1"
       val testContainers = "1.11.3"
       val testContainersScala = "0.25.0"
       val cornichon = "0.17.2-SNAPSHOT"
@@ -107,7 +107,7 @@ lazy val `artemis-client` = (project in file("./artemis-client"))
   .settings(
     libraryDependencies ++= Seq(
       "com.typesafe.akka" %% "akka-http"   % "10.2.4",
-      "com.typesafe.akka" %% "akka-stream" % "2.6.13"
+      "com.typesafe.akka" %% "akka-stream" % "2.6.14"
     )
   )
   .dependsOn(`artemis-protocol`)
@@ -118,7 +118,7 @@ lazy val `artemis-server` = (project in file("./artemis-server"))
   .settings(
     libraryDependencies ++= Seq(
       "com.typesafe.akka" %% "akka-http"   % "10.2.4",
-      "com.typesafe.akka" %% "akka-stream" % "2.6.13"
+      "com.typesafe.akka" %% "akka-stream" % "2.6.14"
     )
   )
   .dependsOn(`artemis-protocol`)
