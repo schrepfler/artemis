@@ -26,10 +26,12 @@ object ArtemisServer extends App {
 
   val httpPort = 4000
 
-  Http().newServerAt("0.0.0.0", httpPort).bind(websocketRoute ~ graphqlRoute)
+  Http()
+    .newServerAt("0.0.0.0", httpPort)
+    .bind(websocketRoute ~ graphqlRoute)
     .onComplete {
-      case Success(value) => println(s"Artemis listening to port ${httpPort}.")
-      case Failure(err)   => println(s"Artemis failed to bind port ${httpPort} to interface. ${err.getMessage}")
+      case Success(value) => println(s"Artemis listening to port $httpPort.")
+      case Failure(err)   => println(s"Artemis failed to bind port $httpPort to interface. ${err.getMessage}")
     }
 
 }
@@ -46,27 +48,27 @@ object Route {
       complete("WS server is alive\n")
     } ~ path("connect") {
 
-          val handler = as.actorOf(Props[ClientHandlerActor])
-          val futureFlow = (handler ? GetWebsocketFlow)(3.seconds).mapTo[Flow[Message, Message, _]]
+      val handler = as.actorOf(Props[ClientHandlerActor])
+      val futureFlow = (handler ? GetWebsocketFlow)(3.seconds).mapTo[Flow[Message, Message, _]]
 
-          onComplete(futureFlow) {
-            case Success(flow) => handleWebSocketMessages(flow)
-            case Failure(err)  => complete(err.toString)
-          }
-        }
+      onComplete(futureFlow) {
+        case Success(flow) => handleWebSocketMessages(flow)
+        case Failure(err)  => complete(err.toString)
+      }
+    }
 
   val graphqlRoute = pathEndOrSingleSlash {
-      complete("WS server is alive\n")
-    } ~ path("graphql") {
+    complete("WS server is alive\n")
+  } ~ path("graphql") {
 
-          val handler = as.actorOf(Props[ClientHandlerActor])
-          val futureFlow = (handler ? GetWebsocketFlow)(3.seconds).mapTo[Flow[Message, Message, _]]
+    val handler = as.actorOf(Props[ClientHandlerActor])
+    val futureFlow = (handler ? GetWebsocketFlow)(3.seconds).mapTo[Flow[Message, Message, _]]
 
-          onComplete(futureFlow) {
-            case Success(flow) => handleWebSocketMessages(flow)
-            case Failure(err)  => complete(err.toString)
-          }
-        }
+    onComplete(futureFlow) {
+      case Success(flow) => handleWebSocketMessages(flow)
+      case Failure(err)  => complete(err.toString)
+    }
+  }
 
 }
 
@@ -115,7 +117,7 @@ class ClientHandlerActor extends Actor {
       sender ! flow
 
     case msg: GqlConnectionInit =>
-      println(s"GqlConnectionInit received: ${msg}")
+      println(s"GqlConnectionInit received: $msg")
       down ! GqlConnectionAck
 
     case msg: GqlConnectionTerminate =>
