@@ -21,8 +21,7 @@ import io.circe.generic.extras._
 import net.sigmalab.artemis._
 import OperationMessage._
 
-/**
-  *  Ref. http://immutables.pl/2017/02/25/customizing-circes-auto-generic-derivation/
+/** Ref. http://immutables.pl/2017/02/25/customizing-circes-auto-generic-derivation/
   */
 object JsonCodecs extends AutoDerivation {
 
