@@ -1,4 +1,4 @@
-addSbtPlugin("com.typesafe.sbt"    % "sbt-git"          % "1.0.1")
+addSbtPlugin("com.typesafe.sbt"    % "sbt-git"          % "1.0.2")
 addSbtPlugin("org.scalameta"       % "sbt-scalafmt"     % "2.4.3")
 addSbtPlugin("de.heikoseeberger"   % "sbt-header"       % "5.6.0")
 addSbtPlugin("com.lightbend.lagom" % "lagom-sbt-plugin" % "1.6.5")
